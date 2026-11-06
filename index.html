@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* The stage keeps the design's 16:9 shape and scales to fit any window */
+    .stage {
+      --base-w: 1920;
+      --base-h: 1080;
+      position: relative;
+      width: min(100vw, calc(100vh * 16 / 9));
+      aspect-ratio: 16 / 9;
+    }
+
+    .stage img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /*
+      Invisible buttons placed on top of an image.
+      --x, --y, --w, --h are in pixels of the image they sit on
+      (--base-w x --base-h), converted to percentages so they stay
+      lined up at any size.
+    */
+    .hotspot {
+      position: absolute;
+      left: calc(var(--x) / var(--base-w) * 100%);
+      top: calc(var(--y) / var(--base-h) * 100%);
+      width: calc(var(--w) / var(--base-w) * 100%);
+      height: calc(var(--h) / var(--base-h) * 100%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hotspot:disabled {
+      cursor: default;
+    }
+
+    /* Only shows when tabbing with the keyboard, not on mouse clicks */
+    .hotspot:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: -3px;
+    }
+
+    /* ---------- Pay wall pop-up ---------- */
+
+    /* Invisible layer over the whole shop so nothing behind the pay wall can be clicked */
+    .paywall-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      z-index: 10;
+    }
+
+    .paywall-layer[hidden] {
+      display: none;
+    }
+
+    .paywall {
+      --base-w: 1024;
+      --base-h: 768;
+      position: relative;
+      width: 44%; /* size of the pay wall compared to the shop screen */
+      aspect-ratio: 4 / 3;
+      background: rgba(51, 51, 51, 0.5); /* dark grey; last number is the opacity (0.5 = 50%) */
+      border-radius: 4% / 5.333%; /* rounded corners (two values keep the curve round on a 4:3 box) */
+    }
+
+    .paywall .paywall-img {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Both versions are loaded up front and swapped instantly, so the autofill looks real */
+    .paywall .paywall-filled,
+    .paywall.is-filled .paywall-blank {
+      visibility: hidden;
+    }
+
+    .paywall.is-filled .paywall-filled {
+      visibility: visible;
+    }
+
+    .paywall.is-opening {
+      animation: paywall-pop-in 0.4s ease-out both;
+    }
+
+    .paywall.is-closing {
+      animation: paywall-pop-out 0.18s ease-in both;
+    }
+
+    @keyframes paywall-pop-in {
+      0%   { transform: scale(0.4);  opacity: 0; }
+      60%  { transform: scale(1.08); opacity: 1; }
+      80%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes paywall-pop-out {
+      0%   { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(0.6); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <img src="shop.png" alt="Brawl Stars style shop screen">
+
+    <div class="shop-buttons" id="shop-buttons">
+      <button class="hotspot" id="btn-back"        aria-label="Back"        style="--x:0;    --y:0;    --w:188; --h:133"></button>
+      <button class="hotspot" id="btn-home"        aria-label="Home"        style="--x:1732; --y:0;    --w:188; --h:124"></button>
+      <button class="hotspot" id="btn-offers"      aria-label="Offers"      style="--x:176;  --y:1000; --w:202; --h:70"></button>
+      <button class="hotspot" id="btn-assignments" aria-label="Assignments" style="--x:734;  --y:1000; --w:378; --h:70"></button>
+      <button class="hotspot" id="btn-timetable"   aria-label="Timetable"   style="--x:1485; --y:1000; --w:296; --h:70"></button>
+    </div>
+
+    <div class="paywall-layer" id="paywall-layer" hidden>
+      <div class="paywall" id="paywall" role="dialog" aria-modal="true" aria-label="Supercell pay wall">
+        <img class="paywall-img paywall-blank"  src="paywall-transparent.png"          alt="Supercell pay wall with empty card details">
+        <img class="paywall-img paywall-filled" src="paywall-autofill-transparent.png" alt="Supercell pay wall with card details filled in">
+
+        <button class="hotspot" id="paywall-close"    aria-label="Close"             style="--x:40;  --y:20;  --w:90;  --h:85"></button>
+        <button class="hotspot" id="paywall-autofill" aria-label="Click to autofill" style="--x:435; --y:139; --w:554; --h:73"></button>
+        <button class="hotspot" id="paywall-pay"      aria-label="Pay" disabled      style="--x:764; --y:622; --w:209; --h:100"></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const shopButtons = document.getElementById('shop-buttons');
+    const layer = document.getElementById('paywall-layer');
+    const paywall = document.getElementById('paywall');
+    const closeBtn = document.getElementById('paywall-close');
+    const autofillBtn = document.getElementById('paywall-autofill');
+    const payBtn = document.getElementById('paywall-pay');
+
+    // Every shop button except OFFERS opens the pay wall
+    const paywallTriggers = ['btn-back', 'btn-home', 'btn-assignments', 'btn-timetable'];
+
+    let opener = null;
+    let closing = false;
+
+    function openPaywall(event) {
+      opener = event.currentTarget;
+      closing = false;
+
+      // Start blank every time it opens
+      paywall.classList.remove('is-filled', 'is-closing');
+      payBtn.disabled = true;
+
+      shopButtons.inert = true;
+      layer.hidden = false;
+
+      // Restart the pop animation even if it ran before
+      paywall.classList.remove('is-opening');
+      void paywall.offsetWidth;
+      paywall.classList.add('is-opening');
+
+      closeBtn.focus();
+    }
+
+    function closePaywall() {
+      if (closing) return;
+      closing = true;
+      paywall.classList.remove('is-opening');
+      paywall.classList.add('is-closing');
+
+      // Backup in case the pop-out animation is delayed (e.g. tab in the background)
+      setTimeout(finishClose, 300);
+    }
+
+    function finishClose() {
+      if (!closing) return;
+      layer.hidden = true;
+      paywall.classList.remove('is-closing');
+      shopButtons.inert = false;
+      if (opener) opener.focus();
+      closing = false;
+    }
+
+    paywall.addEventListener('animationend', finishClose);
+
+    paywallTriggers.forEach(id => {
+      document.getElementById(id).addEventListener('click', openPaywall);
+    });
+
+    autofillBtn.addEventListener('click', () => {
+      paywall.classList.add('is-filled');
+      payBtn.disabled = false;
+    });
+
+    // PAY only works after autofill (it starts disabled)
+    payBtn.addEventListener('click', closePaywall);
+    closeBtn.addEventListener('click', closePaywall);
+  </script>
+</body>
+</html>
