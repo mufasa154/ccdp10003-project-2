@@ -403,7 +403,7 @@ export default function GemsPage() {
           id="btn-home"
           aria-label="Home"
           style={{ "--x": 1732, "--y": 0, "--w": 188, "--h": 124 } as HotspotStyle}
-          onClick={openPaywall}
+          onClick={() => router.push("/play")}
         />
         <button
           className="hotspot"

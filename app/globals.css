@@ -1160,33 +1160,647 @@ body {
 .play-btn--blue   { background: linear-gradient(180deg, #47a0ff 0%, #1c6ef2 100%); }
 .play-btn--green  { background: linear-gradient(180deg, #68e82c 0%, #37b611 100%); }
 
-/* Big yellow PLAY button on the home shop screen */
-.home-play {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) skewX(-6deg);
-  font-size: 3.4cqw;
-  padding: 1.1cqw 4.4cqw;
-  background: linear-gradient(180deg, #fff033 0%, #ffc400 100%);
-  border: 0.3cqw solid #000;
-  border-radius: 0.8cqw;
-  box-shadow: 0 0.55cqw 0 #000, inset 0 0.3cqw 0 rgba(255, 255, 255, 0.55);
-  cursor: pointer;
-  z-index: 5;
-  transition: transform 0.1s ease;
-}
-
-.home-play:hover {
-  transform: translate(-50%, -52%) skewX(-6deg) scale(1.04);
-}
-
-.home-play:active {
-  transform: translate(-50%, -48%) skewX(-6deg);
-}
-
 .play-fineprint {
   font-size: 0.75cqw;
   color: #9fb6ff;
   margin-top: -0.6cqw;
+}
+
+/* ================= Results screen (after you fail) ================= */
+
+.res {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 55%, #4d8dff 0%, #2f6cf0 45%, #2357d8 100%);
+}
+
+.res-fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 20;
+  pointer-events: none;
+  animation: res-fade 0.6s ease-out forwards;
+}
+
+@keyframes res-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.res-head {
+  position: absolute;
+  left: 0;
+  top: 0.6cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5cqw;
+  animation: res-slide-left 0.45s 0.9s ease-out both;
+}
+
+.res-title {
+  font-size: 4.4cqw;
+  text-transform: none;
+  transform: skewX(-6deg);
+  padding-left: 0.6cqw;
+  line-height: 1.1;
+}
+
+.res-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4cqw;
+  padding-left: 0.6cqw;
+}
+
+.res-trophy {
+  width: 2.6cqw;
+  height: 2.6cqw;
+  flex: none;
+}
+
+.res-trophy--small {
+  width: 1.7cqw;
+  height: 1.7cqw;
+}
+
+.res-plus {
+  font-size: 1.8cqw;
+}
+
+.res-plus--small {
+  font-size: 1.2cqw;
+}
+
+.res-ribbon {
+  font-size: 1.5cqw;
+  padding: 0.35cqw 1.4cqw;
+  background: linear-gradient(180deg, #ffb52e 0%, #ff8a00 100%);
+  border: 0.18cqw solid #000;
+  transform: skewX(-14deg);
+  margin: 0 0.5cqw;
+}
+
+.res-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5cqw;
+  align-self: flex-start;
+  margin-left: 1.6cqw;
+  padding: 0.3cqw 2.2cqw 0.3cqw 0.6cqw;
+  background: #1b2c7a;
+  border: 0.16cqw solid #000;
+  transform: skewX(-14deg);
+  font-size: 1.1cqw;
+}
+
+.res-quest {
+  position: absolute;
+  left: 0;
+  top: 44%;
+  width: 24cqw;
+  padding: 0.8cqw 1.2cqw 0.8cqw 1.6cqw;
+  background: linear-gradient(180deg, #2a8dff 0%, #1563df 100%);
+  border: 0.18cqw solid #000;
+  border-left: none;
+  box-shadow: 0 0.35cqw 0 rgba(0, 0, 0, 0.35);
+  animation: res-slide-left 0.45s 1.05s ease-out both;
+}
+
+.res-quest-tag {
+  font-size: 0.85cqw;
+  text-align: center;
+  color: #dff0ff;
+}
+
+.res-quest-title {
+  font-size: 1.15cqw;
+  text-align: center;
+  margin: 0.3cqw 0 0.6cqw;
+  line-height: 1.25;
+}
+
+.res-quest-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.4cqw;
+  font-size: 0.85cqw;
+}
+
+.res-quest-gain {
+  color: #6dff4a;
+  font-size: 1cqw;
+}
+
+.res-quest-progress {
+  margin-right: auto;
+  padding: 0.15cqw 0.6cqw;
+  background: #10318e;
+  border: 0.12cqw solid #000;
+}
+
+.res-mini {
+  width: 1.2cqw;
+  height: 1.2cqw;
+}
+
+.res-rank {
+  position: absolute;
+  right: 0;
+  top: 15%;
+  width: 17cqw;
+  padding: 0.8cqw 1cqw 1cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4cqw;
+  background: linear-gradient(180deg, #2a8dff 0%, #1563df 100%);
+  border: 0.18cqw solid #000;
+  border-right: none;
+  animation: res-slide-right 0.45s 1.1s ease-out both;
+}
+
+.res-badge {
+  position: relative;
+  width: 6cqw;
+  height: 6cqw;
+  border-radius: 50%;
+  background: #ffc21a;
+  border: 0.3cqw solid #000;
+  box-shadow: 0 0 0 0.35cqw #ff3b47, 0 0 0 0.5cqw #000;
+}
+
+.stage .res-badge img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.res-badge-tier {
+  position: absolute;
+  left: 50%;
+  bottom: -0.9cqw;
+  transform: translateX(-50%);
+  font-size: 1cqw;
+  padding: 0 0.6cqw;
+  background: #4a2a8a;
+  border: 0.14cqw solid #000;
+  border-radius: 0.3cqw;
+}
+
+.res-rank-plus {
+  margin-top: 0.7cqw;
+  font-size: 1.2cqw;
+  color: #6dff4a;
+}
+
+.res-pill--right {
+  align-self: center;
+  margin-left: 0;
+  font-size: 1cqw;
+}
+
+.res-survived {
+  font-size: 0.9cqw;
+  color: #dff0ff;
+}
+
+/* Hero pops up from below, then the rays burst behind him */
+.res-rays {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 120cqw;
+  height: 120cqw;
+  margin: -60cqw 0 0 -60cqw;
+  background: repeating-conic-gradient(rgba(255, 255, 255, 0.5) 0deg 7deg, transparent 7deg 20deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.6) 25%, transparent 55%);
+  mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.6) 25%, transparent 55%);
+  animation: res-rays 2.2s 0.5s ease-out both, res-spin 18s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes res-rays {
+  0% { opacity: 0; transform: scale(0.3); }
+  25% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+@keyframes res-spin {
+  to { rotate: 360deg; }
+}
+
+.res-hero {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 26cqw;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: res-hero-pop 0.9s 0.25s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.stage .res-hero img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0.6cqw 0 rgba(0, 0, 0, 0.3));
+  animation: res-idle 2.4s 1.2s ease-in-out infinite;
+}
+
+.res-hero-name {
+  position: relative;
+  z-index: 1;
+  font-size: 1.6cqw;
+  color: #ffe94a;
+  margin-top: -3cqw;
+}
+
+@keyframes res-hero-pop {
+  0% { transform: translateX(-50%) translateY(70%) scale(0.6); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes res-idle {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-1.5%) scale(1.01, 0.99); }
+}
+
+@keyframes res-slide-left {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes res-slide-right {
+  from { transform: translateX(110%); }
+  to { transform: translateX(0); }
+}
+
+.res-share {
+  position: absolute;
+  right: 0;
+  top: 1.4cqw;
+  width: 4.6cqw;
+  height: 3.6cqw;
+  padding: 0.6cqw 1.2cqw 0.6cqw 1.4cqw;
+  background: linear-gradient(180deg, #2a8dff 0%, #1563df 100%);
+  border: 0.18cqw solid #000;
+  border-right: none;
+  border-radius: 0.5cqw 0 0 0.5cqw;
+  cursor: pointer;
+  animation: res-slide-right 0.45s 1s ease-out both;
+}
+
+.res-share svg {
+  width: 100%;
+  height: 100%;
+}
+
+.res-buttons {
+  position: absolute;
+  right: 0;
+  bottom: 1.6cqw;
+  display: flex;
+  gap: 1cqw;
+  animation: res-slide-right 0.45s 1.25s ease-out both;
+}
+
+.res-btn {
+  font-size: 1.9cqw;
+  height: 5cqw;
+  border: 0.22cqw solid #000;
+  transform: skewX(-8deg);
+  box-shadow: 0 0.4cqw 0 #000, inset 0 0.25cqw 0 rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.res-btn:hover {
+  filter: brightness(1.08);
+}
+
+.res-btn:active {
+  transform: skewX(-8deg) translateY(0.25cqw);
+  box-shadow: 0 0.15cqw 0 #000, inset 0 0.25cqw 0 rgba(255, 255, 255, 0.5);
+}
+
+.res-btn--yellow {
+  width: 19cqw;
+  background: linear-gradient(180deg, #ffe14a 0%, #ffb800 100%);
+}
+
+.res-btn--blue {
+  width: 15cqw;
+  margin-right: -1cqw;
+  padding-right: 1cqw;
+  background: linear-gradient(180deg, #47a0ff 0%, #1c6ef2 100%);
+}
+
+/* ================= Star drop (after EXIT) ================= */
+
+.sd {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--sd-bg) 70%, #fff) 0%, var(--sd-bg) 55%);
+  transition: background 0.3s ease;
+  outline: none;
+}
+
+.sd--reward {
+  background: radial-gradient(circle at 50% 50%, #3d7bff 0%, #1f4fd6 70%);
+}
+
+.sd-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M60 30l9 19 21 3-15 14 4 21-19-10-19 10 4-21-15-14 21-3z' fill='none' stroke='%23000' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 7cqw 7cqw;
+  animation: sd-pattern 20s linear infinite;
+}
+
+@keyframes sd-pattern {
+  to { background-position: 7cqw 7cqw; }
+}
+
+.sd-banner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1.6cqw 6cqw 1.8cqw 1.8cqw;
+  font-size: 2.2cqw;
+  background: #000;
+  clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);
+}
+
+.sd-rarity {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 5%;
+  text-align: center;
+  font-size: 3.6cqw;
+  color: var(--sd-glow);
+  transform: skewX(-6deg);
+}
+
+.sd-rarity--up {
+  animation: sd-rarity-up 0.5s ease-out;
+}
+
+@keyframes sd-rarity-up {
+  0% { transform: skewX(-6deg) scale(2); opacity: 0; }
+  100% { transform: skewX(-6deg) scale(1); opacity: 1; }
+}
+
+.sd-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50cqw;
+  height: 50cqw;
+  margin: -25cqw 0 0 -25cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--sd-glow) 0%, transparent 60%);
+  opacity: 0.75;
+  animation: sd-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes sd-glow {
+  50% { transform: scale(1.12); opacity: 0.95; }
+}
+
+.sd-star {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20cqw;
+  height: 20cqw;
+  margin: -10cqw 0 0 -10cqw;
+  animation: sd-drop 0.7s cubic-bezier(0.3, 1.6, 0.5, 1) both, sd-bob 1.8s 0.7s ease-in-out infinite;
+}
+
+.sd-star-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0.8cqw 0 rgba(0, 0, 0, 0.25));
+}
+
+@keyframes sd-drop {
+  0% { transform: translateY(-80cqw) scale(0.6); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes sd-bob {
+  50% { transform: translateY(-0.8cqw) rotate(2deg); }
+}
+
+/* Each tap: squash, flash white, wobble */
+.sd-star--hit {
+  animation: sd-hit 0.45s ease-out both, sd-bob 1.8s 0.45s ease-in-out infinite;
+}
+
+.sd-star--hit .sd-star-svg {
+  animation: sd-hit-flash 0.45s ease-out;
+}
+
+@keyframes sd-hit {
+  0% { transform: scale(1); }
+  20% { transform: scale(1.35, 0.8) rotate(-6deg); }
+  45% { transform: scale(0.85, 1.2) rotate(5deg); }
+  70% { transform: scale(1.08) rotate(-2deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes sd-hit-flash {
+  0% { filter: brightness(3) drop-shadow(0 0 3cqw #fff); }
+  100% { filter: brightness(1) drop-shadow(0 0.8cqw 0 rgba(0, 0, 0, 0.25)); }
+}
+
+.sd-star--burst {
+  animation: sd-burst 0.65s ease-in both;
+}
+
+@keyframes sd-burst {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.8) rotate(-10deg); }
+  100% { transform: scale(2.6) rotate(20deg); opacity: 0; }
+}
+
+.sd-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, #fff 0%, #fff 35%, rgba(255, 255, 255, 0.4) 70%);
+  animation: sd-flash 0.65s ease-in both;
+  pointer-events: none;
+}
+
+@keyframes sd-flash {
+  0% { opacity: 0; }
+  70% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.sd-chances {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4cqw;
+  font-size: 0.95cqw;
+}
+
+.sd-dots {
+  display: flex;
+  gap: 0.4cqw;
+}
+
+.sd-dot {
+  width: 1.2cqw;
+  height: 1.2cqw;
+  border-radius: 50%;
+  border: 0.14cqw solid #000;
+  background: radial-gradient(circle at 35% 35%, #ffe0ff, #d14dff);
+}
+
+.sd-dot--used {
+  background: #222;
+}
+
+.sd-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3%;
+  text-align: center;
+  font-size: 1.3cqw;
+  animation: sd-hint 1s ease-in-out infinite;
+}
+
+@keyframes sd-hint {
+  50% { opacity: 0.4; }
+}
+
+/* Reward */
+.sd-reward {
+  position: absolute;
+  inset: 0;
+  animation: res-fade-in 0.3s ease-out both;
+}
+
+@keyframes res-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sd-loot-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 18%;
+  text-align: center;
+  font-size: 3cqw;
+}
+
+.sd-loot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24cqw;
+  height: 22cqw;
+  margin: -11cqw 0 0 -12cqw;
+  animation: sd-loot-pop 0.55s cubic-bezier(0.3, 1.7, 0.5, 1) both;
+}
+
+.sd-loot-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0.5cqw 0 rgba(0, 0, 0, 0.3));
+}
+
+@keyframes sd-loot-pop {
+  0% { transform: scale(0) rotate(-20deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Goblin's timeline is 2.7s: run in, grab, run off */
+.sd-loot--stolen {
+  animation: sd-loot-grab 2.7s ease-in-out both;
+}
+
+@keyframes sd-loot-grab {
+  0%, 36% { transform: translate(0, 0) scale(1); opacity: 1; }
+  48% { transform: translate(9cqw, 1cqw) scale(0.35); opacity: 1; }
+  49%, 100% { transform: translate(9cqw, 1cqw) scale(0.35); opacity: 0; }
+}
+
+.sd-amount {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 70%;
+  text-align: center;
+  font-size: 3.2cqw;
+}
+
+.sd-goblin {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: 18cqw;
+  animation: sd-goblin 2.7s both;
+}
+
+.stage .sd-goblin img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0.6cqw 0 rgba(0, 0, 0, 0.3));
+}
+
+@keyframes sd-goblin {
+  0% { transform: translateX(60cqw) rotate(6deg); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  30% { transform: translateX(2cqw) rotate(-4deg); }
+  36% { transform: translateX(2cqw) translateY(-1.5cqw) rotate(0); }
+  44% { transform: translateX(2cqw) translateY(0) rotate(-6deg); }
+  56% { transform: translateX(2cqw) translateY(-1cqw) scaleX(-1) rotate(0); animation-timing-function: ease-in; }
+  100% { transform: translateX(-80cqw) translateY(0) scaleX(-1) rotate(-8deg); }
+}
+
+/* The loot in the goblin's hands, shown once he grabs it */
+.sd-goblin-loot {
+  position: absolute;
+  left: 25%;
+  bottom: 2%;
+  width: 9cqw;
+  height: 8.5cqw;
+  opacity: 0;
+  animation: sd-goblin-loot 2.7s both;
+}
+
+@keyframes sd-goblin-loot {
+  0%, 47% { opacity: 0; transform: scale(0.4); }
+  52%, 100% { opacity: 1; transform: scale(1); }
+}
+
+.sd-stolen {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 46%;
+  text-align: center;
+  font-size: 2.2cqw;
+  color: #ff4d62;
+  animation: sd-loot-pop 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) both;
 }
