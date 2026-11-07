@@ -328,7 +328,7 @@ export default function AssignmentsPage() {
           id="btn-offers"
           aria-label="Offers"
           style={{ "--x": 176, "--y": 1000, "--w": 202, "--h": 70 } as HotspotStyle}
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/offers")}
         />
         <button
           className="hotspot"

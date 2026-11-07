@@ -33,6 +33,15 @@ export default function ShopPage() {
 
       <img src="/shop.png" alt="Brawl Stars style shop screen" />
 
+      <button
+        type="button"
+        className="bs-text home-play"
+        inert={isOpen}
+        onClick={() => router.push("/play")}
+      >
+        PLAY
+      </button>
+
       <div className="shop-buttons" id="shop-buttons" inert={isOpen}>
         <button
           className="hotspot"
@@ -53,6 +62,7 @@ export default function ShopPage() {
           id="btn-offers"
           aria-label="Offers"
           style={{ "--x": 176, "--y": 1000, "--w": 202, "--h": 70 } as HotspotStyle}
+          onClick={() => router.push("/offers")}
         />
         <button
           className="hotspot"
