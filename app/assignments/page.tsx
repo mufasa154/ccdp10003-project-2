@@ -27,7 +27,7 @@ const ASSIGNMENT_STEPS: AssignmentStep[] = [
   {
     step: 1,
     variant: "purple",
-    title: "ASSIGNMENT 1 BRIEF",
+    title: "PROJECT 1",
     artType: "box",
     extraBadge: "34%\nEXTRA",
     oldPrice: 199,
@@ -36,7 +36,7 @@ const ASSIGNMENT_STEPS: AssignmentStep[] = [
   {
     step: 2,
     variant: "purple",
-    title: "MARKING RUBRIC",
+    title: "SPECIAL CONSIDERATION ",
     artType: "box",
     extraBadge: "34%\nEXTRA",
     oldPrice: 199,
@@ -45,7 +45,7 @@ const ASSIGNMENT_STEPS: AssignmentStep[] = [
   {
     step: 3,
     variant: "gold",
-    title: "SAMPLE HD ESSAY",
+    title: "MARKING RUBRIC",
     artType: "box",
     isFree: true,
   },
@@ -219,15 +219,18 @@ function StepArrow() {
 export default function AssignmentsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isTimetableActive, setIsTimetableActive] = useState(false);
   const openerRef = useRef<HTMLButtonElement | null>(null);
 
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
+    setIsTimetableActive(event.currentTarget.id === "btn-timetable");
     setIsOpen(true);
   }
 
   function handleClosePaywall() {
     setIsOpen(false);
+    setIsTimetableActive(false);
     openerRef.current?.focus();
   }
 
@@ -334,10 +337,11 @@ export default function AssignmentsPage() {
           className="hotspot"
           id="btn-assignments"
           aria-label="Assignments"
+          aria-current={isTimetableActive ? undefined : "page"}
           style={{ "--x": 734, "--y": 1000, "--w": 378, "--h": 70 } as HotspotStyle}
         />
         <button
-          className="hotspot"
+          className={`hotspot${isTimetableActive ? " is-active" : ""}`}
           id="btn-timetable"
           aria-label="Timetable"
           style={{ "--x": 1485, "--y": 1000, "--w": 296, "--h": 70 } as HotspotStyle}

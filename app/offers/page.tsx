@@ -160,6 +160,7 @@ function formatTime(totalSeconds: number) {
 export default function OffersPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isTimetableActive, setIsTimetableActive] = useState(false);
   const openerRef = useRef<HTMLButtonElement | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -217,11 +218,13 @@ export default function OffersPage() {
 
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
+    setIsTimetableActive(event.currentTarget.id === "btn-timetable");
     setIsOpen(true);
   }
 
   function handleClosePaywall() {
     setIsOpen(false);
+    setIsTimetableActive(false);
     openerRef.current?.focus();
   }
 
@@ -346,6 +349,7 @@ export default function OffersPage() {
           className="hotspot"
           id="btn-offers"
           aria-label="Offers"
+          aria-current={isTimetableActive ? undefined : "page"}
           style={{ "--x": 176, "--y": 1000, "--w": 202, "--h": 70 } as HotspotStyle}
         />
         <button
@@ -356,7 +360,7 @@ export default function OffersPage() {
           onClick={() => router.push("/assignments")}
         />
         <button
-          className="hotspot"
+          className={`hotspot${isTimetableActive ? " is-active" : ""}`}
           id="btn-timetable"
           aria-label="Timetable"
           style={{ "--x": 1485, "--y": 1000, "--w": 296, "--h": 70 } as HotspotStyle}

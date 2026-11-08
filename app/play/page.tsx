@@ -167,6 +167,8 @@ export default function PlayPage() {
       inputRef.current.mouseDown = false;
       inputRef.current.clicked = false;
       setScreen("playing");
+    } else if (screenRef.current === "stardrop") {
+      router.push("/");
     }
   }
 
@@ -221,7 +223,7 @@ export default function PlayPage() {
         <EndScreen stats={stats} onPlayAgain={start} onExit={() => setScreen("stardrop")} />
       )}
 
-      {screen === "stardrop" && <StarDrop onDone={() => router.push("/")} />}
+      {screen === "stardrop" && <StarDrop onOpenPaywall={() => setPaywallOpen(true)} />}
 
       <Paywall isOpen={paywallOpen} onClose={handleClosePaywall} />
     </div>

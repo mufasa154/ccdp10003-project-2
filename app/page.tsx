@@ -15,15 +15,18 @@ type HotspotStyle = CSSProperties & {
 export default function ShopPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isTimetableActive, setIsTimetableActive] = useState(false);
   const openerRef = useRef<HTMLButtonElement | null>(null);
 
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
+    setIsTimetableActive(event.currentTarget.id === "btn-timetable");
     setIsOpen(true);
   }
 
   function handleClosePaywall() {
     setIsOpen(false);
+    setIsTimetableActive(false);
     openerRef.current?.focus();
   }
 
@@ -63,7 +66,7 @@ export default function ShopPage() {
           onClick={() => router.push("/assignments")}
         />
         <button
-          className="hotspot"
+          className={`hotspot${isTimetableActive ? " is-active" : ""}`}
           id="btn-timetable"
           aria-label="Timetable"
           style={{ "--x": 1485, "--y": 1000, "--w": 296, "--h": 70 } as HotspotStyle}
