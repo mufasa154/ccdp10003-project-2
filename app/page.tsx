@@ -27,9 +27,9 @@ export default function PlayPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const inputRef = useRef<Input>({ keys: new Set(), mouse: { x: W / 2, y: 0 }, mouseDown: false, clicked: false });
-  const screenRef = useRef<Screen>("start");
+  const screenRef = useRef<Screen>("playing");
 
-  const [screen, setScreenState] = useState<Screen>("start");
+  const [screen, setScreenState] = useState<Screen>("playing");
   const [stats, setStats] = useState<GameStats>({ time: 0, gems: 0, kills: 0 });
   const [paywallOpen, setPaywallOpen] = useState(false);
 
@@ -40,11 +40,11 @@ export default function PlayPage() {
 
   // Next.js keeps pages you leave alive in the background (React <Activity>), so
   // coming back would show whatever screen you left on (e.g. the goblin).
-  // Reset to the start screen whenever this page is hidden.
+  // Reset to playing whenever this page is hidden.
   useLayoutEffect(() => {
     return () => {
-      screenRef.current = "start";
-      setScreenState("start");
+      screenRef.current = "playing";
+      setScreenState("playing");
       setPaywallOpen(false);
     };
   }, []);
