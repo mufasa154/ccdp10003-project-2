@@ -483,6 +483,107 @@ body {
   overflow: visible;
 }
 
+.step-chest {
+  position: relative;
+  width: 11.4cqw;
+  height: 9.8cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: chest-idle-wobble 3.4s var(--chest-delay, 0s) ease-in-out infinite;
+}
+
+.stage .step-chest-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.step-chest-closed {
+  animation: chest-closed-cycle 3.4s var(--chest-delay, 0s) steps(1, end) infinite;
+}
+
+.step-chest-open {
+  opacity: 0;
+  animation: chest-open-cycle 3.4s var(--chest-delay, 0s) steps(1, end) infinite;
+}
+
+/* On hover / focus or when clicked, pop open the chest immediately with a burst */
+.step-card:hover .step-chest,
+.step-card:focus-visible .step-chest,
+.step-chest.is-opening {
+  animation: chest-pop-open 0.48s cubic-bezier(0.25, 1.5, 0.5, 1) both;
+}
+
+.step-card:hover .step-chest-closed,
+.step-card:focus-visible .step-chest-closed,
+.step-chest.is-opening .step-chest-closed {
+  animation: none;
+  opacity: 0;
+}
+
+.step-card:hover .step-chest-open,
+.step-card:focus-visible .step-chest-open,
+.step-chest.is-opening .step-chest-open {
+  animation: none;
+  opacity: 1;
+  filter: drop-shadow(0 0 0.7cqw rgba(255, 230, 80, 0.85));
+}
+
+@keyframes chest-idle-wobble {
+  0%, 52%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  58% {
+    transform: translateY(-0.2cqw) rotate(-6deg) scale(1.04, 0.96);
+  }
+  63% {
+    transform: translateY(-0.2cqw) rotate(6deg) scale(0.96, 1.05);
+  }
+  68% {
+    transform: translateY(-0.55cqw) rotate(-2deg) scale(1.12);
+  }
+  84% {
+    transform: translateY(-0.35cqw) rotate(0deg) scale(1.08);
+  }
+}
+
+@keyframes chest-closed-cycle {
+  0%, 66%, 88%, 100% {
+    opacity: 1;
+  }
+  67%, 87% {
+    opacity: 0;
+  }
+}
+
+@keyframes chest-open-cycle {
+  0%, 66%, 88%, 100% {
+    opacity: 0;
+  }
+  67%, 87% {
+    opacity: 1;
+  }
+}
+
+@keyframes chest-pop-open {
+  0% {
+    transform: scale(0.9) rotate(-8deg);
+  }
+  35% {
+    transform: scale(1.18, 0.88) rotate(6deg);
+  }
+  70% {
+    transform: translateY(-0.45cqw) scale(1.14) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(-0.25cqw) scale(1.1) rotate(0deg);
+  }
+}
+
 .step-qty-pill {
   margin-top: 0.4cqw;
   background: linear-gradient(180deg, #68e82c 0%, #37b611 100%);
@@ -545,9 +646,11 @@ body {
   transform: rotate(-14deg);
 }
 
+.stage .step-gem-icon,
 .step-gem-icon {
   width: 1.85cqw;
   height: 1.85cqw;
+  object-fit: contain;
   flex-shrink: 0;
   filter: drop-shadow(0 0.15cqw 0 #000);
 }

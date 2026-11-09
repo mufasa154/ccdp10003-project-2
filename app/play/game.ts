@@ -14,6 +14,9 @@ const FONT = '"Supercell-Magic", sans-serif';
 const avatar: HTMLImageElement =
   typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/play/david-shea.png" }) : ({} as HTMLImageElement);
 
+const gemSprite: HTMLImageElement =
+  typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/gem.png" }) : ({} as HTMLImageElement);
+
 type Vec = { x: number; y: number };
 
 interface Player extends Vec {
@@ -1071,27 +1074,17 @@ function drawGem(ctx: CanvasRenderingContext2D, g: Gem, scale = 1) {
   const y = g.y + Math.sin(g.t * 6) * 4;
   ctx.save();
   ctx.translate(g.x, y);
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 5;
-  ctx.fillStyle = "#22c55e";
-  ctx.beginPath();
-  ctx.moveTo(0, -s);
-  ctx.lineTo(s * 0.9, -s * 0.25);
-  ctx.lineTo(s * 0.55, s * 0.85);
-  ctx.lineTo(-s * 0.55, s * 0.85);
-  ctx.lineTo(-s * 0.9, -s * 0.25);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = "#bef264";
-  ctx.beginPath();
-  ctx.moveTo(0, -s * 0.55);
-  ctx.lineTo(s * 0.45, -s * 0.12);
-  ctx.lineTo(s * 0.28, s * 0.45);
-  ctx.lineTo(-s * 0.28, s * 0.45);
-  ctx.lineTo(-s * 0.45, -s * 0.12);
-  ctx.closePath();
-  ctx.fill();
+  if (gemSprite.complete && gemSprite.naturalWidth > 0) {
+    ctx.drawImage(gemSprite, -s, -s, s * 2, s * 2);
+  } else {
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 5;
+    ctx.fillStyle = "#22c55e";
+    ctx.beginPath();
+    ctx.arc(0, 0, s, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
   ctx.restore();
 }
 

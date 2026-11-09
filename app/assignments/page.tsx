@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import Paywall from "../components/Paywall";
+import SupercellIntro from "../components/SupercellIntro";
 
 type HotspotStyle = CSSProperties & {
   "--x": number;
@@ -67,82 +68,26 @@ const ASSIGNMENT_STEPS: AssignmentStep[] = [
   },
 ];
 
-function CoffinBoxArt() {
+function ChestArt({ isOpening, stepIndex }: { isOpening: boolean; stepIndex: number }) {
   return (
-    <svg viewBox="0 0 140 125" aria-hidden="true">
-      {/* Top handle */}
-      <path
-        d="M46 24 C46 10, 94 10, 94 24 L84 28 C84 18, 56 18, 56 28 Z"
-        fill="#39f0ba"
-        stroke="#000"
-        strokeWidth="5"
-        strokeLinejoin="round"
+    <div
+      className={`step-chest${isOpening ? " is-opening" : ""}`}
+      style={{ "--chest-delay": `${stepIndex * 0.75}s` } as CSSProperties}
+      aria-hidden="true"
+    >
+      <img
+        className="step-chest-img step-chest-closed"
+        src="/chest.png"
+        alt=""
+        draggable={false}
       />
-      {/* Main 3D box body */}
-      <polygon
-        points="16,38 92,28 124,42 120,104 90,116 20,102"
-        fill="#1dd39b"
-        stroke="#000"
-        strokeWidth="5.5"
-        strokeLinejoin="round"
+      <img
+        className="step-chest-img step-chest-open"
+        src="/chestopen.png"
+        alt=""
+        draggable={false}
       />
-      {/* Front face */}
-      <polygon
-        points="18,40 90,32 88,114 20,102"
-        fill="#2df2b5"
-        stroke="#000"
-        strokeWidth="4.5"
-        strokeLinejoin="round"
-      />
-      {/* Right side face */}
-      <polygon
-        points="90,32 124,42 120,104 88,114"
-        fill="#16a982"
-        stroke="#000"
-        strokeWidth="4.5"
-        strokeLinejoin="round"
-      />
-      {/* Purple metal straps */}
-      <polygon
-        points="14,42 92,32 92,48 15,56"
-        fill="#9a5bff"
-        stroke="#000"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="22,28 36,26 34,106 20,103"
-        fill="#8c49ff"
-        stroke="#000"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="76,24 90,22 88,114 74,111"
-        fill="#8c49ff"
-        stroke="#000"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      {/* Angry cross-eyes */}
-      <polygon points="39,58 55,66 51,74 35,66" fill="#000" />
-      <polygon points="55,58 39,66 43,74 59,66" fill="#000" />
-      <polygon points="57,58 73,66 69,74 53,66" fill="#000" />
-      <polygon points="73,58 57,66 61,74 77,66" fill="#000" />
-      <circle cx="44" cy="63" r="2.2" fill="#ffe600" />
-      <circle cx="66" cy="63" r="2.2" fill="#ffe600" />
-      {/* Gold side lock */}
-      <ellipse
-        cx="114"
-        cy="74"
-        rx="9"
-        ry="13"
-        fill="#ffcf26"
-        stroke="#000"
-        strokeWidth="4"
-      />
-      <circle cx="115" cy="74" r="4" fill="#5e2a00" />
-    </svg>
+    </div>
   );
 }
 
@@ -193,13 +138,7 @@ function PlayerIconArt() {
 }
 
 function GemIcon() {
-  return (
-    <svg className="step-gem-icon" viewBox="0 0 36 36" aria-hidden="true">
-      <circle cx="18" cy="18" r="16" fill="#22c55e" stroke="#000" strokeWidth="3" />
-      <polygon points="18,5 28,13 24,28 12,28 8,13" fill="#86efac" />
-      <polygon points="18,9 25,15 22,25 14,25 11,15" fill="#bef264" />
-    </svg>
-  );
+  return <img className="step-gem-icon" src="/gem.png" alt="" draggable={false} />;
 }
 
 function StepArrow() {
@@ -220,7 +159,16 @@ export default function AssignmentsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isTimetableActive, setIsTimetableActive] = useState(false);
+  const [openingStep, setOpeningStep] = useState<number | null>(null);
   const openerRef = useRef<HTMLButtonElement | null>(null);
+
+  function handleStepClick(step: number) {
+    if (openingStep !== null) return;
+    setOpeningStep(step);
+    setTimeout(() => {
+      router.push("/gems");
+    }, 520);
+  }
 
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
@@ -236,6 +184,8 @@ export default function AssignmentsPage() {
 
   return (
     <div className="stage">
+      <SupercellIntro />
+
       <img src="/shop.png" alt="Brawl Stars style shop screen" />
 
       <div className="assignments-overlay" inert={isOpen}>
@@ -255,7 +205,7 @@ export default function AssignmentsPage() {
               <button
                 type="button"
                 className={`step-card step-card--${item.variant}`}
-                onClick={() => router.push("/gems")}
+                onClick={() => handleStepClick(item.step)}
                 aria-label={`Step ${item.step}: ${item.title}`}
               >
                 <div className="step-card-header">
@@ -266,7 +216,11 @@ export default function AssignmentsPage() {
                   <div className="step-unskew">
                     <div className="bs-text step-item-title">{item.title}</div>
                     <div className="step-art">
-                      {item.artType === "box" ? <CoffinBoxArt /> : <PlayerIconArt />}
+                      {item.artType === "box" ? (
+                        <ChestArt isOpening={openingStep === item.step} stepIndex={index} />
+                      ) : (
+                        <PlayerIconArt />
+                      )}
                     </div>
                     {item.quantity && (
                       <div className="bs-text step-qty-pill">{item.quantity}</div>
@@ -331,7 +285,7 @@ export default function AssignmentsPage() {
           id="btn-offers"
           aria-label="Offers"
           style={{ "--x": 176, "--y": 1000, "--w": 202, "--h": 70 } as HotspotStyle}
-          onClick={() => router.push("/offers")}
+          onClick={() => router.push("/")}
         />
         <button
           className="hotspot"

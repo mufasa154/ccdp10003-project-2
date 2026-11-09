@@ -53,8 +53,7 @@ function GemPile() {
     <svg className="sd-loot-svg" viewBox="0 0 130 120" aria-hidden="true">
       {gems.map(([x, y, r], i) => (
         <g key={i} transform={`translate(${x} ${y}) rotate(${r})`}>
-          <path d="M0-18 16-5 10 15H-10L-16-5Z" fill="#22c55e" stroke="#000" strokeWidth="3" strokeLinejoin="round" />
-          <path d="M0-10 8-3 5 8H-5L-8-3Z" fill="#bef264" />
+          <image href="/gem.png" x="-18" y="-18" width="36" height="36" />
         </g>
       ))}
     </svg>

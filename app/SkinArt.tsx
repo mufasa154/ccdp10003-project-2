@@ -178,3 +178,4 @@ export function MysteryBoxArt() {
     </svg>
   );
 }
+

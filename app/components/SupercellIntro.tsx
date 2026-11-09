@@ -1,12 +1,32 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 // Track within the client session so navigating back to "/" from "/assignments"
 // doesn't replay the intro, while a full page load/refresh always plays it.
 let introPlayedThisLoad = false;
+const introListeners = new Set<() => void>();
+
+export function isIntroFinished() {
+  return introPlayedThisLoad;
+}
+
+export function onIntroFinished(listener: () => void) {
+  introListeners.add(listener);
+  return () => {
+    introListeners.delete(listener);
+  };
+}
+
+function markIntroFinished() {
+  if (introPlayedThisLoad) return;
+  introPlayedThisLoad = true;
+  introListeners.forEach((fn) => fn());
+}
 
 export default function SupercellIntro() {
+  const router = useRouter();
   const [phase, setPhase] = useState<"supercell" | "brawlstars" | "done">(
     introPlayedThisLoad ? "done" : "supercell"
   );
@@ -15,8 +35,23 @@ export default function SupercellIntro() {
   const loadingVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    // Prefetch all routes and game sprites immediately on website load
+    router.prefetch("/play");
+    router.prefetch("/assignments");
+    router.prefetch("/gems");
+    for (const src of [
+      "/gem.png",
+      "/chest.png",
+      "/chestopen.png",
+      "/play/david-shea.png",
+      "/play/david-shea-full.png",
+      "/play/goblin.png",
+    ]) {
+      const img = new Image();
+      img.src = src;
+    }
+
     if (introPlayedThisLoad) {
-      setPhase("done");
       return;
     }
 
@@ -52,13 +87,13 @@ export default function SupercellIntro() {
         }
       });
     }
-  }, []);
+  }, [router]);
 
   function handleSupercellEnded() {
     setPhase("brawlstars");
     const loadingVideo = loadingVideoRef.current;
     if (!loadingVideo) {
-      introPlayedThisLoad = true;
+      markIntroFinished();
       setPhase("done");
       return;
     }
@@ -78,7 +113,7 @@ export default function SupercellIntro() {
   }
 
   function handleLoadingEnded() {
-    introPlayedThisLoad = true;
+    markIntroFinished();
     setPhase("done");
   }
 
