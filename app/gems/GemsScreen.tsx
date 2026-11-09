@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, type MouseEvent } from "react";
+import { useCallback, useRef, useState, type MouseEvent } from "react";
+import DeclinedPopup from "../components/DeclinedPopup";
 import Paywall from "../components/Paywall";
 import ShopNav from "../components/ShopNav";
 
@@ -273,8 +274,13 @@ function SmallGemIcon() {
   );
 }
 
-// The Gems screen is reached from two tabs. It keeps that tab lit, and its back arrow returns there.
+// The Gems screen is reached from all three tabs. It keeps that tab lit, and its back arrow returns there.
 const FROM = {
+  timeline: {
+    background: "/project2-a.png",
+    alt: "Brawl Stars style shop screen, Timeline tab",
+    backTo: "/timeline",
+  },
   assignments: {
     background: "/project2-b.png",
     alt: "Brawl Stars style shop screen, Assignments tab",
@@ -287,10 +293,16 @@ const FROM = {
   },
 };
 
-/** Gem and coin packs. Used by /gems (from Assignments) and /offers/gems (from Offers). */
+/**
+ * Gem and coin packs. Used by /gems (from Assignments), /offers/gems (from Offers)
+ * and /timeline/gems (from Timeline, when you can't afford a game).
+ * Any pack opens the pay wall; PAY there "declines" the card, and closing that
+ * message closes the pay wall too.
+ */
 export default function GemsScreen({ from }: { from: keyof typeof FROM }) {
   const { background, alt, backTo } = FROM[from];
   const [isOpen, setIsOpen] = useState(false);
+  const [declined, setDeclined] = useState(false);
   const openerRef = useRef<HTMLButtonElement | null>(null);
 
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
@@ -298,10 +310,16 @@ export default function GemsScreen({ from }: { from: keyof typeof FROM }) {
     setIsOpen(true);
   }
 
-  function handleClosePaywall() {
+  const handleClosePaywall = useCallback(() => {
     setIsOpen(false);
     openerRef.current?.focus();
-  }
+  }, []);
+
+  // OK / Esc on "Card declined": back to the packs
+  const closeDeclined = useCallback(() => {
+    setDeclined(false);
+    handleClosePaywall();
+  }, [handleClosePaywall]);
 
   return (
     <div className="stage">
@@ -401,7 +419,12 @@ export default function GemsScreen({ from }: { from: keyof typeof FROM }) {
       {/* No `current` tab: every tab, including the lit one, takes you to its page */}
       <ShopNav backTo={backTo} inert={isOpen} />
 
-      <Paywall isOpen={isOpen} onClose={handleClosePaywall} />
+      {/* While "Card declined" is up, the pay wall behind it can't be clicked or tabbed to */}
+      <div style={{ display: "contents" }} inert={declined}>
+        <Paywall isOpen={isOpen} onClose={handleClosePaywall} onPay={() => setDeclined(true)} />
+      </div>
+
+      <DeclinedPopup isOpen={declined} onClose={closeDeclined} />
     </div>
   );
 }

@@ -13,7 +13,10 @@ type FieldId = "name" | "number" | "cvv" | "expiry";
 
 interface PaywallProps {
   isOpen: boolean;
+  /** The X button (and PAY too, unless onPay is given) */
   onClose: () => void;
+  /** PAY, when it should do something other than close (only the Timeline page uses this) */
+  onPay?: () => void;
 }
 
 const INPUT_FIELDS: Array<{
@@ -73,7 +76,7 @@ const INPUT_FIELDS: Array<{
   },
 ];
 
-export default function Paywall({ isOpen, onClose }: PaywallProps) {
+export default function Paywall({ isOpen, onClose, onPay }: PaywallProps) {
   const [isFilled, setIsFilled] = useState(false);
   const [activeField, setActiveField] = useState<FieldId | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -179,7 +182,7 @@ export default function Paywall({ isOpen, onClose }: PaywallProps) {
           aria-label="Pay"
           disabled={!isFilled}
           style={{ "--x": 764, "--y": 622, "--w": 209, "--h": 100 } as HotspotStyle}
-          onClick={onClose}
+          onClick={onPay ?? onClose}
         />
       </div>
     </div>

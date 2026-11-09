@@ -79,8 +79,11 @@ body {
 */
 .gem-count {
   position: absolute;
-  /* Lined up with where 999 sits in the old shop.png */
-  left: calc(1578.75 / 1920 * 100%);
+  /* Spans the black space between the gem and the box's right edge,
+     so any number (999, 666, 333, 0) sits centred in it */
+  left: calc(1560 / 1920 * 100%);
+  width: calc(128 / 1920 * 100%);
+  text-align: center;
   top: calc(21.5 / 1080 * 100%);
   font-family: var(--font-lilita-one), sans-serif;
   font-size: calc(50.64 / 1920 * 100cqw); /* 50.64px at full size */
@@ -89,6 +92,118 @@ body {
   z-index: 6;
   pointer-events: none;
   user-select: none;
+}
+
+/* When gems are spent, the new number pops in with a red flash */
+.gem-count.is-changed {
+  transform-origin: center;
+  animation: gem-count-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes gem-count-pop {
+  0% { transform: scale(1.4); color: #ff4d62; }
+  60% { color: #ff4d62; }
+  100% { transform: scale(1); color: #ffffff; }
+}
+
+/* Wraps Assignments / Offers / their Gems pages (LockedGuard.tsx); hidden while they're locked */
+.locked-guard {
+  display: contents;
+}
+
+.locked-guard[hidden] {
+  display: none;
+}
+
+/* ---------- Locked ASSIGNMENTS / OFFERS tabs (ShopNav.tsx) ---------- */
+
+.hotspot.is-locked {
+  cursor: not-allowed;
+}
+
+/* Darkens the tab's name and puts a padlock in the middle of it */
+.tab-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 8, 30, 0.5);
+  border-radius: 0.6cqw;
+  pointer-events: none;
+}
+
+.tab-lock-icon {
+  height: 85%;
+  width: auto;
+  overflow: visible;
+  filter: drop-shadow(0 0.2cqw 0 rgba(0, 0, 0, 0.5));
+}
+
+/* Clicked while locked: the padlock shakes */
+.tab-lock.is-wiggling .tab-lock-icon {
+  animation: tab-lock-wiggle 0.45s ease-in-out both;
+}
+
+@keyframes tab-lock-wiggle {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(5deg); }
+}
+
+/* All three games bought: the shackle pops open, the lock grows and fades away */
+.tab-lock.is-unlocking {
+  animation: tab-lock-fade 0.9s ease-in both;
+}
+
+.tab-lock.is-unlocking .tab-lock-icon {
+  animation: tab-lock-open 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.tab-lock.is-unlocking .tab-lock-shackle {
+  animation: tab-lock-shackle 0.35s ease-out both;
+}
+
+@keyframes tab-lock-fade {
+  0%, 45% { background-color: rgba(3, 8, 30, 0.5); opacity: 1; }
+  100% { background-color: rgba(3, 8, 30, 0); opacity: 0; }
+}
+
+@keyframes tab-lock-open {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25) rotate(-6deg); }
+  100% { transform: scale(1.5) translateY(-20%) rotate(-6deg); }
+}
+
+@keyframes tab-lock-shackle {
+  to { transform: translateY(-5px); }
+}
+
+/* "You must purchase all three items in Timeline." Fades in, waits, fades out. */
+.lock-toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(125 / 1080 * 100%); /* just above the tabs */
+  translate: -50% 0;
+  z-index: 30;
+  white-space: nowrap;
+  padding: 0.8cqw 1.6cqw;
+  font-size: 1.15cqw;
+  background: linear-gradient(180deg, #1b43b8 0%, #102a7a 100%);
+  border: 0.22cqw solid #000;
+  border-radius: 0.8cqw;
+  box-shadow: 0 0.45cqw 0 rgba(0, 0, 0, 0.55), inset 0 0.2cqw 0 rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  animation: lock-toast 2.2s ease both;
+}
+
+@keyframes lock-toast {
+  0% { opacity: 0; transform: translateY(1cqw) scale(0.92); }
+  12% { opacity: 1; transform: none; }
+  75% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-0.5cqw); }
 }
 
 /* ---------- Pay wall pop-up ---------- */
@@ -1094,6 +1209,700 @@ body {
   10%  { opacity: 1; transform: translateY(0); }
   85%  { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(0.5cqw); }
+}
+
+/* ---------- Timeline Screen (/timeline) ---------- */
+
+/*
+  Sizes shared by the cards, the panel a bought card grows into, and the heading
+  next to it. The stage is 16:9, so its height is 56.25cqw.
+*/
+.timeline-stage {
+  --stage-h: 56.25cqw;
+  --overlay-bottom: calc(var(--stage-h) * 0.108); /* the gap under the cards */
+  --card-w: 28.5cqw;
+  --card-gap: 2.4cqw;
+  /* The left-hand (GUNSHINE.NET) spot: the row of 3 cards is centred */
+  --slot0-left: calc((100cqw - 3 * var(--card-w) - 2 * var(--card-gap)) / 2);
+  /* The panel is as wide as that spot plus the same margin on each side,
+     so the picture in it stays exactly where it was */
+  --panel-w: calc(2 * var(--slot0-left) + var(--card-w));
+}
+
+/* From just under the top bar to just above the tabs */
+.timeline-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 9.5%;
+  bottom: var(--overlay-bottom);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6cqw;
+  z-index: 8; /* above the showcase backdrop (z-index 7) */
+  user-select: none;
+}
+
+.timeline-title {
+  font-size: 1.9cqw;
+  color: #fff;
+  /* Coming back: fades in once the cards are on their way back */
+  transition: opacity 0.3s ease 0.25s;
+}
+
+/* Takes all the height left under the heading; the cards stretch to fill it */
+.timeline-track {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--card-gap);
+}
+
+/* Built like the skin offer cards, but straight (not slanted) */
+.timeline-card {
+  /* Each colour sets these four (same palettes as the offer rarities) */
+  --head-a: #3dff8a;
+  --head-b: #14c25a;
+  --body-a: #9dffc4;
+  --body-b: #0f9a48;
+  --card-border: 0.24cqw;
+  --head-h: 4.4cqw;
+  --foot-h: 4.6cqw;
+
+  position: relative; /* for its colour panel (.timeline-card-bg) */
+  width: var(--card-w);
+  border: var(--card-border) solid #000;
+  box-shadow: 0 0.55cqw 0 rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 0;
+  text-align: center;
+  background: var(--body-b);
+  transition:
+    transform 0.12s ease,
+    translate 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) var(--return-delay, 0s);
+}
+
+.timeline-card:hover {
+  transform: translateY(-0.35cqw);
+}
+
+.timeline-card:active {
+  transform: translateY(0.15cqw);
+}
+
+.timeline-card:focus-visible {
+  outline: 0.25cqw solid #fff;
+  outline-offset: 0.2cqw;
+}
+
+.timeline-card--red    { --head-a: #ff4d62; --head-b: #e01a36; --body-a: #ffb0b8; --body-b: #b8102a; }
+.timeline-card--green  { --head-a: #3dff8a; --head-b: #14c25a; --body-a: #9dffc4; --body-b: #0f9a48; }
+.timeline-card--purple { --head-a: #c55bff; --head-b: #9a24ee; --body-a: #e6b3ff; --body-b: #7a19c9; }
+
+/* The year */
+.timeline-card-header {
+  height: var(--head-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4cqw;
+  background: linear-gradient(180deg, var(--head-a) 0%, var(--head-b) 100%);
+  border-bottom: 0.2cqw solid rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0.22cqw 0 rgba(255, 255, 255, 0.45);
+}
+
+/* Holds the picture and name; its colour is drawn by .timeline-card-bg underneath */
+.timeline-card-body {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/*
+  The card's colour and dots, as their own layer so they can grow past the card.
+  Normally it sits exactly where the body is (between the year and the price).
+  Uses bottom + height (not top), because the card's distance from the top of
+  the screen isn't a fixed number but its distance from the bottom is.
+*/
+.timeline-card-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--foot-h);
+  height: calc(100% - var(--head-h) - var(--foot-h));
+  background: radial-gradient(circle at 50% 42%, var(--body-a) 0%, var(--body-b) 78%);
+  pointer-events: none;
+}
+
+/* Dotted pattern, same as the other cards (centred, so it holds still while the panel grows) */
+.timeline-card-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 18%, transparent 20%);
+  background-size: 3cqw 3cqw;
+  background-position: center;
+}
+
+.timeline-unskew {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1cqw;
+  position: relative;
+  z-index: 1;
+}
+
+/* The game's picture, as an app icon */
+.stage img.timeline-art {
+  width: 16cqw;
+  height: 16cqw;
+  object-fit: cover;
+  background: #fff;
+  border: 0.24cqw solid #000;
+  border-radius: 2.6cqw;
+  box-shadow: 0 0.4cqw 0 rgba(0, 0, 0, 0.45);
+}
+
+.timeline-name {
+  font-size: 1.05cqw;
+}
+
+.timeline-card-footer {
+  height: var(--foot-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #4b5778 0%, #37415c 100%);
+  border-top: 0.18cqw solid #000;
+  box-shadow: inset 0 0.15cqw 0 rgba(255, 255, 255, 0.2);
+}
+
+.timeline-price-row {
+  flex-direction: row;
+  gap: 0.4cqw;
+}
+
+/* Takes the place of the gem icon and price */
+.timeline-purchased {
+  position: relative;
+  z-index: 1;
+  font-size: 1.65cqw;
+  color: #fff;
+}
+
+/* ---------- A bought game on show (timeline/page.tsx) ---------- */
+
+/*
+  Covers the shop (tabs, home, gem count, SHOP bar) with the star drop's reward
+  backdrop: the same blue glow and drifting stars. It fades in while the other
+  cards slide away; going back, it fades out as they return.
+  Each rule's transition is the one used on the way to that state.
+*/
+.timeline-showcase-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #3d7bff 0%, #1f4fd6 70%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease 0.4s, visibility 0s linear 0.8s;
+}
+
+.timeline-stage.is-showing .timeline-showcase-bg {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+.timeline-stage.is-showing .timeline-title {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* The back button, cut out of project2-a.png: the only button left on screen.
+   It fades with the backdrop, so it looks like it never moves. */
+.timeline-showcase-back {
+  z-index: 9;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease 0.4s, visibility 0s linear 0.8s;
+}
+
+.timeline-stage.is-showing .timeline-showcase-back {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+/* The other two cards drop below the screen (the second a moment after the first) */
+.timeline-card.is-away {
+  translate: 0 130%;
+  transition:
+    transform 0.12s ease,
+    translate 0.45s cubic-bezier(0.55, 0, 0.85, 0.35) var(--away-delay, 0s);
+}
+
+/* Going back, the bought card slides home once its panel has shrunk (the others wait for it) */
+.timeline-card.is-shown-game {
+  transition:
+    transform 0.12s ease,
+    translate 0.4s cubic-bezier(0.3, 0.7, 0.4, 1) 0.4s;
+}
+
+/* Once the others are gone, it moves over to the left-hand spot.
+   --slot is its place in the row (0, 1, 2), so GUNSHINE.NET doesn't move at all. */
+.timeline-card.is-shown-game.is-on-show {
+  translate: calc(var(--slot) * -1 * (var(--card-w) + var(--card-gap))) 0;
+  transition:
+    transform 0.12s ease,
+    translate 0.55s cubic-bezier(0.34, 1.25, 0.64, 1) 0.5s;
+}
+
+/*
+  Then its colour grows into a panel down the whole left side, top to bottom,
+  and the year, price and small name fade (the name moves to the heading).
+  --expand-delay (page.tsx) waits for the slides: 0.5s for GUNSHINE.NET,
+  1.05s for a card that first moves over. Going back it all shrinks straight away.
+*/
+.timeline-card-bg {
+  transition-property: left, right, bottom, height, box-shadow;
+  transition-duration: 0.45s;
+  transition-timing-function: cubic-bezier(0.5, 0, 0.2, 1);
+  transition-delay: 0s;
+}
+
+.timeline-card.is-on-show .timeline-card-bg {
+  /* --bleed runs it a little past the top, left and bottom of the screen (which crops it),
+     so no hairline of the backdrop shows at the edges. The right edge is exact. */
+  --bleed: 0.5cqw;
+  left: calc(-1 * (var(--slot0-left) + var(--card-border) + var(--bleed)));
+  right: calc(-1 * (var(--slot0-left) + var(--card-border)));
+  bottom: calc(-1 * (var(--overlay-bottom) + var(--card-border) + var(--bleed)));
+  height: calc(var(--stage-h) + 2 * var(--bleed));
+  box-shadow: 0.3cqw 0 0 #000; /* black edge against the backdrop, like the cards' outline */
+  transition-duration: 0.6s;
+  transition-timing-function: cubic-bezier(0.7, 0, 0.2, 1);
+  transition-delay: var(--expand-delay, 0s);
+}
+
+.timeline-year,
+.timeline-footer-label,
+.timeline-name {
+  transition: opacity 0.25s ease 0.3s;
+}
+
+.timeline-card.is-on-show :is(.timeline-year, .timeline-footer-label, .timeline-name) {
+  opacity: 0;
+  transition: opacity 0.2s ease var(--expand-delay, 0s);
+}
+
+/*
+  The right-hand side while a game is on show, next to the panel: the heading
+  ("GUNSHINE.NET - 2011", left-aligned) with the game's information under it.
+  Never catches clicks, so it can't get in the way of the cards underneath.
+*/
+.timeline-showcase-content {
+  position: absolute;
+  left: calc(var(--panel-w) + 4cqw);
+  right: 4cqw;
+  top: 5.5cqw;
+  bottom: 3.5cqw;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.6cqw;
+  pointer-events: none;
+}
+
+.timeline-showcase-title {
+  margin: 0;
+  font-size: 3.4cqw;
+  font-weight: normal; /* like the "Are you sure?" heading */
+  line-height: 1.1;
+  text-align: left;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 0.8cqw;
+  transition: opacity 0.2s ease, translate 0.2s ease, visibility 0s linear 0.2s;
+}
+
+/* Fades in once the panel has grown */
+.timeline-stage.is-showing .timeline-showcase-title {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  transition:
+    opacity 0.4s ease calc(var(--expand-delay, 0s) + 0.4s),
+    translate 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--expand-delay, 0s) + 0.4s),
+    visibility 0s linear calc(var(--expand-delay, 0s) + 0.4s);
+}
+
+/*
+  The information: plain sentence-case text in the Supercell font, on a box
+  darkened the same way the screen darkens behind "Are you sure?" (same tint
+  and blur). It pops in just after the heading, springy like that pop-up,
+  then each paragraph pops in turn (--i is its number, set by page.tsx).
+*/
+.timeline-showcase-info {
+  --info-delay: calc(var(--expand-delay, 0s) + 0.65s);
+  align-self: stretch;
+  padding: 1.8cqw 2.2cqw;
+  background: rgba(3, 8, 30, 0.6);
+  backdrop-filter: blur(0.25cqw);
+  border: 0.22cqw solid rgba(0, 0, 0, 0.6);
+  border-radius: 1cqw;
+  box-shadow: 0 0.45cqw 0 rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 1.3cqw;
+  line-height: 1.55;
+  text-align: left;
+  text-shadow: 0 0.12cqw 0 rgba(0, 0, 0, 0.65);
+  transform-origin: 50% 0;
+  /* Hidden: slightly smaller and lower (like the closed "Are you sure?" pop-up) */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.6cqw) scale(0.9);
+  transition: transform 0.2s ease-in, opacity 0.18s ease-in, visibility 0s linear 0.2s;
+}
+
+.timeline-stage.is-showing .timeline-showcase-info {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) var(--info-delay),
+    opacity 0.25s ease var(--info-delay),
+    visibility 0s linear var(--info-delay);
+}
+
+.timeline-showcase-info p {
+  margin: 0;
+  opacity: 0;
+  transform: translateY(0.6cqw) scale(0.96);
+  transform-origin: 0 50%;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.timeline-showcase-info p + p {
+  margin-top: 1.1em;
+}
+
+.timeline-stage.is-showing .timeline-showcase-info p {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.3s ease calc(var(--info-delay) + 0.15s + var(--i, 0) * 0.12s),
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--info-delay) + 0.15s + var(--i, 0) * 0.12s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-card,
+  .timeline-card.is-away,
+  .timeline-card.is-shown-game,
+  .timeline-card.is-shown-game.is-on-show,
+  .timeline-card-bg,
+  .timeline-card.is-on-show .timeline-card-bg {
+    transition-duration: 0.01s;
+    transition-delay: 0s;
+  }
+
+  .timeline-showcase-info,
+  .timeline-showcase-info p {
+    transform: none !important;
+  }
+}
+
+/* ---------- "Are you sure?" pop-up (ConsentPopup.tsx) ---------- */
+
+/*
+  Darkens the whole screen. It's always there, just invisible while closed,
+  so it can fade in and out. Opening uses the springy timing, closing a quick ease.
+*/
+.consent-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 8, 30, 0.72);
+  backdrop-filter: blur(0.25cqw);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease-in, visibility 0s linear 0.22s;
+}
+
+.consent-layer.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease-out, visibility 0s;
+}
+
+.consent-popup {
+  width: 38cqw;
+  padding: 2.6cqw 3cqw 2.4cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(180deg, #1b43b8 0%, #102a7a 100%);
+  border: 0.26cqw solid #000;
+  border-radius: 1.2cqw;
+  box-shadow: 0 0.6cqw 0 rgba(0, 0, 0, 0.55), inset 0 0.25cqw 0 rgba(255, 255, 255, 0.25);
+  outline: none;
+  /* Closed: slightly smaller and lower */
+  transform: translateY(1.6cqw) scale(0.9);
+  opacity: 0;
+  transition: transform 0.2s ease-in, opacity 0.18s ease-in;
+}
+
+.consent-layer.is-open .consent-popup {
+  transform: none;
+  opacity: 1;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease-out;
+}
+
+/* While the pay wall is on top: the panel goes away, the dark background stays */
+.consent-layer.is-open.is-panel-hidden .consent-popup {
+  transform: translateY(1.6cqw) scale(0.9);
+  opacity: 0;
+  transition: transform 0.2s ease-in, opacity 0.18s ease-in;
+}
+
+.consent-title {
+  margin: 0;
+  font-size: 3.2cqw;
+  font-weight: normal;
+  line-height: 1.1;
+}
+
+.consent-fineprint {
+  margin: 1.2cqw 0 0;
+  max-width: 28cqw;
+  font-family: var(--font-lilita-one), sans-serif;
+  font-size: 0.95cqw;
+  line-height: 1.35;
+  color: #b9c8ff;
+}
+
+.consent-buttons {
+  --btn-w: 11cqw;
+  --btn-gap: 1.6cqw;
+  display: flex;
+  gap: var(--btn-gap);
+  margin-top: 2.2cqw;
+}
+
+.consent-btn {
+  width: var(--btn-w, 11cqw); /* fixed, so YES knows how far to slide to the middle */
+  font-size: 1.7cqw;
+  padding: 0.75cqw 2.4cqw;
+  border: 0.22cqw solid #000;
+  border-radius: 0.7cqw;
+  box-shadow: 0 0.35cqw 0 #000, inset 0 0.2cqw 0 rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.consent-btn:hover {
+  transform: translateY(-0.2cqw);
+  filter: brightness(1.08);
+}
+
+.consent-btn:active {
+  transform: translateY(0.15cqw);
+}
+
+.consent-btn:focus-visible {
+  outline: 0.22cqw solid #fff;
+  outline-offset: 0.2cqw;
+}
+
+.consent-btn--yes { background: linear-gradient(180deg, #68e82c 0%, #37b611 100%); }
+.consent-btn--no  { background: linear-gradient(180deg, #ff4d62 0%, #e01a36 100%); }
+
+/* ---------- "Card declined" pop-up on the Gems pages (DeclinedPopup.tsx) ---------- */
+
+/* Uses the "Are you sure?" layer and panel, but sits above the pay wall (z-index 20),
+   darkening it the same way */
+.declined-layer {
+  z-index: 30;
+}
+
+.declined-popup {
+  width: 40cqw;
+}
+
+/* Once it has popped in, a quick shake like a rejected payment.
+   (It moves `translate`, so it doesn't fight the pop's `transform`.) */
+.declined-layer.is-open .declined-popup {
+  animation: declined-shake 0.45s ease 0.3s both;
+}
+
+@keyframes declined-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -1cqw 0; }
+  40% { translate: 0.9cqw 0; }
+  60% { translate: -0.6cqw 0; }
+  80% { translate: 0.3cqw 0; }
+}
+
+.declined-icon {
+  width: 7.5cqw;
+  height: auto;
+  margin-bottom: 1cqw;
+  filter: drop-shadow(0 0.3cqw 0 rgba(0, 0, 0, 0.45));
+}
+
+.declined-title {
+  color: #ff5468;
+}
+
+/* The message: plain sentence-case text in the Supercell font */
+.declined-message {
+  margin: 1.2cqw 0 0;
+  max-width: 32cqw;
+  font-size: 1.35cqw;
+  line-height: 1.45;
+  color: #fff;
+  text-shadow: 0 0.12cqw 0 rgba(0, 0, 0, 0.6);
+}
+
+.declined-ok {
+  margin-top: 2cqw;
+  background: linear-gradient(180deg, #ffd84d 0%, #f5a400 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .declined-layer.is-open .declined-popup {
+    animation: none;
+  }
+}
+
+/*
+  NO gets stolen. Everything below runs on the goblin's 2.4s timeline:
+  0-32% runs in from the right, ~38% grabs NO, 58-100% runs back off.
+*/
+.consent-no-slot {
+  position: relative;
+}
+
+/*
+  Once NO is stolen its empty slot stays in place (so nothing jumps), but YES
+  slides over it: let clicks and hovers pass through the slot to YES, and keep YES on top.
+*/
+.consent-buttons.is-no-stolen .consent-no-slot {
+  pointer-events: none;
+}
+
+.consent-buttons.is-no-stolen .consent-btn--yes {
+  position: relative;
+  z-index: 3;
+}
+
+/* The real NO disappears the moment the goblin grabs it */
+.consent-btn--no.is-stolen {
+  pointer-events: none;
+  animation: consent-no-grabbed 2.4s both;
+}
+
+.consent-btn--no.is-gone {
+  visibility: hidden;
+}
+
+@keyframes consent-no-grabbed {
+  0%, 36% { opacity: 1; transform: none; }
+  40%, 100% { opacity: 0; transform: translateY(-0.6cqw) scale(0.8); }
+}
+
+/* Standing over the NO button, hands on it */
+.consent-goblin {
+  position: absolute;
+  left: 50%;
+  bottom: -1.5cqw;
+  width: 10cqw;
+  margin-left: -5cqw;
+  z-index: 2;
+  pointer-events: none;
+  animation: consent-goblin-run 2.4s both;
+}
+
+@keyframes consent-goblin-run {
+  0%   { transform: translateX(50cqw); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  32%  { transform: translateX(0) translateY(0); }
+  37%  { transform: translateX(0) translateY(-1.2cqw); } /* hop to grab it */
+  42%  { transform: translateX(0) translateY(0); }
+  58%  { transform: translateX(-0.5cqw) translateY(0); animation-timing-function: ease-in; }
+  100% { transform: translateX(55cqw) translateY(-0.5cqw); }
+}
+
+.stage img.consent-goblin-img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0.5cqw 0 rgba(0, 0, 0, 0.35));
+  animation: consent-goblin-face 2.4s both;
+}
+
+/* The picture faces right: flip it to face left while running in, then turn back to run off */
+@keyframes consent-goblin-face {
+  0%, 46% { transform: scaleX(-1) rotate(4deg); }
+  50%, 100% { transform: scaleX(1) rotate(6deg); }
+}
+
+/* The stolen NO in his hands */
+.consent-goblin-no {
+  position: absolute;
+  left: 55%;
+  top: 70%;
+  pointer-events: none;
+  animation: consent-goblin-no 2.4s both;
+}
+
+@keyframes consent-goblin-no {
+  0%, 38% { opacity: 0; transform: translateX(-50%) scale(0.75) rotate(-8deg); }
+  40%, 100% { opacity: 1; transform: translateX(-50%) scale(0.75) rotate(-8deg); }
+}
+
+/*
+  Once the goblin is on his way out, YES slides over to the middle.
+  (Uses `translate`, so the hover lift on `transform` still works.)
+  The slide is only set here, so when the pop-up opens again YES snaps straight back.
+*/
+.consent-buttons.is-no-stolen .consent-btn--yes {
+  translate: calc((var(--btn-w) + var(--btn-gap)) / 2) 0;
+  transition:
+    transform 0.1s ease,
+    filter 0.1s ease,
+    translate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s;
+}
+
+/* The pay wall pops in the same way on the Timeline page */
+.timeline-stage .paywall {
+  animation: consent-pop-in 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes consent-pop-in {
+  from { opacity: 0; transform: translateY(1.6cqw) scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consent-popup,
+  .consent-layer.is-open .consent-popup {
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
