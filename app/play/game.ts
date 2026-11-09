@@ -12,7 +12,7 @@ const FONT = '"Supercell-Magic", sans-serif';
 
 // Player portrait (only created in the browser; Game is built inside useEffect)
 const avatar: HTMLImageElement =
-  typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/play/david-shea.png" }) : ({} as HTMLImageElement);
+  typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/play/player-icon.png" }) : ({} as HTMLImageElement);
 
 const gemSprite: HTMLImageElement =
   typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/gem.png" }) : ({} as HTMLImageElement);
@@ -951,7 +951,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: Player) {
   ctx.fillRect(p.r + 18, -12, 10, 24);
   ctx.restore();
 
-  // David Shea's face (round portrait with a thick black ring)
+  // The player's face (round portrait with a thick black ring)
   ctx.save();
   ctx.beginPath();
   ctx.arc(p.x, p.y, p.r + 6, 0, Math.PI * 2);

@@ -41,7 +41,7 @@ function Credit() {
   );
 }
 
-/** Post-match results screen, Brawl-style: you're #1 (you were the only one playing). */
+/** Post-match results screen, Brawl-style: DEFEATED (the deadlines always win). */
 export default function EndScreen({
   stats,
   onPlayAgain,
@@ -57,7 +57,7 @@ export default function EndScreen({
 
       {/* Top-left: placement + trophies */}
       <div className="res-head">
-        <div className="bs-text res-title">You are #1!</div>
+        <div className="bs-text res-title">DEFEATED</div>
         <div className="res-row">
           <Trophy />
           <span className="bs-text res-plus">+{stats.kills}</span>
@@ -88,14 +88,14 @@ export default function EndScreen({
       {/* Centre: David Shea pops up out of the floor */}
       <div className="res-rays" />
       <div className="res-hero">
-        <img src="/play/david-shea-full.png" alt="David Shea" draggable={false} />
+        <img src="/play/player-full.png" alt="David Shea" draggable={false} />
         <div className="bs-text res-hero-name">DAVID SHEA</div>
       </div>
 
       {/* Right: rank badge */}
       <div className="res-rank">
         <div className="res-badge">
-          <img src="/play/david-shea.png" alt="" draggable={false} />
+          <img src="/play/player-icon.png" alt="" draggable={false} />
           <span className="bs-text res-badge-tier">III</span>
         </div>
         <div className="bs-text res-rank-plus">+28</div>
