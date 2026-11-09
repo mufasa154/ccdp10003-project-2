@@ -134,13 +134,7 @@ const FAKE_PURCHASES = [
 ];
 
 function GemIcon() {
-  return (
-    <svg className="step-gem-icon" viewBox="0 0 36 36" aria-hidden="true">
-      <circle cx="18" cy="18" r="16" fill="#22c55e" stroke="#000" strokeWidth="3" />
-      <polygon points="18,5 28,13 24,28 12,28 8,13" fill="#86efac" />
-      <polygon points="18,9 25,15 22,25 14,25 11,15" fill="#bef264" />
-    </svg>
-  );
+  return <img className="step-gem-icon" src="/gem.png" alt="" draggable={false} />;
 }
 
 function formatTime(totalSeconds: number) {

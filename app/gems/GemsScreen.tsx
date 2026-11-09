@@ -36,20 +36,17 @@ const COIN_PACKS: CoinPack[] = [
   { amount: 4680, gemCost: 360, banner: "30% EXTRA", tier: 4 },
 ];
 
+// SK Chan's gem art (public/gem.png)
 function GemToken({ x, y, r = 16 }: { x: number; y: number; r?: number }) {
   return (
-    <g transform={`translate(${x}, ${y})`}>
-      <ellipse cx="0" cy="4" rx={r} ry={r * 0.72} fill="#0e7490" stroke="#000" strokeWidth="2.8" />
-      <ellipse cx="0" cy="0" rx={r} ry={r * 0.72} fill="#22c55e" stroke="#000" strokeWidth="2.8" />
-      <polygon
-        points={`0,${-r * 0.52} ${r * 0.58},${-r * 0.14} ${r * 0.36},${r * 0.42} ${-r * 0.36},${r * 0.42} ${-r * 0.58},${-r * 0.14}`}
-        fill="#a3e635"
-      />
-      <polygon
-        points={`0,${-r * 0.32} ${r * 0.34},${-r * 0.08} ${r * 0.22},${r * 0.24} ${-r * 0.22},${r * 0.24} ${-r * 0.34},${-r * 0.08}`}
-        fill="#ecfccb"
-      />
-    </g>
+    <image
+      href="/gem.png"
+      x={x - r}
+      y={y - r}
+      width={r * 2}
+      height={r * 2}
+      preserveAspectRatio="xMidYMid meet"
+    />
   );
 }
 
@@ -265,13 +262,7 @@ function CoinPackArt({ tier }: { tier: CoinPack["tier"] }) {
 }
 
 function SmallGemIcon() {
-  return (
-    <svg className="step-gem-icon" viewBox="0 0 36 36" aria-hidden="true">
-      <circle cx="18" cy="18" r="16" fill="#22c55e" stroke="#000" strokeWidth="3" />
-      <polygon points="18,5 28,13 24,28 12,28 8,13" fill="#86efac" />
-      <polygon points="18,9 25,15 22,25 14,25 11,15" fill="#bef264" />
-    </svg>
-  );
+  return <img className="step-gem-icon" src="/gem.png" alt="" draggable={false} />;
 }
 
 // The Gems screen is reached from all three tabs. It keeps that tab lit, and its back arrow returns there.

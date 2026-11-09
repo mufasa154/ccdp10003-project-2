@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -9,12 +10,31 @@ import { useEffect, useRef, useState } from "react";
  * show it (the first time you leave the game for the shop).
  */
 export default function SupercellIntro({ onDone }: { onDone: () => void }) {
+  const router = useRouter();
   const [phase, setPhase] = useState<"supercell" | "brawlstars">("supercell");
 
   const supercellVideoRef = useRef<HTMLVideoElement>(null);
   const loadingVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    // While the videos play, load the shop pages and pictures (SK Chan's idea),
+    // so everything is ready when the intro ends
+    for (const route of ["/timeline", "/assignments", "/offers", "/gems"]) {
+      router.prefetch(route);
+    }
+    for (const src of [
+      "/gem.png",
+      "/chest.png",
+      "/chestopen.png",
+      "/project2-a.png",
+      "/project2-b.png",
+      "/project2-c.png",
+      "/play/goblin.png",
+    ]) {
+      const img = new Image();
+      img.src = src;
+    }
+
     const video = supercellVideoRef.current;
     if (!video) return;
 
@@ -47,7 +67,7 @@ export default function SupercellIntro({ onDone }: { onDone: () => void }) {
         }
       });
     }
-  }, []);
+  }, [router]);
 
   function handleSupercellEnded() {
     setPhase("brawlstars");

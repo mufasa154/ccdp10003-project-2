@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Lilita_One } from "next/font/google";
+import MainMenuMusic from "./components/MainMenuMusic";
 import "./globals.css";
 
 // Used for the gem count (see .gem-count in globals.css)
@@ -16,7 +17,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={lilitaOne.variable}>
-      <body>{children}</body>
+      <body>
+        {/* SK Chan's menu music: plays in the shop, not in Deadline Dash */}
+        <MainMenuMusic />
+        {children}
+      </body>
     </html>
   );
 }

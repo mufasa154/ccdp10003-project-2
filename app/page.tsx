@@ -188,6 +188,9 @@ export default function PlayPage() {
       inputRef.current.mouseDown = false;
       inputRef.current.clicked = false;
       setScreen("playing");
+    } else if (screenRef.current === "stardrop") {
+      // Closed after the goblin's "claim your gems back" pop-ups: on to the shop (intro first)
+      goToShop();
     }
   }
 
@@ -242,9 +245,17 @@ export default function PlayPage() {
         <EndScreen stats={stats} onPlayAgain={start} onExit={() => setScreen("stardrop")} />
       )}
 
-      {screen === "stardrop" && <StarDrop onDone={goToShop} />}
+      {/* Every answer to the goblin pop-ups opens the pay wall; closing it goes on to the shop */}
+      {screen === "stardrop" && <StarDrop onOpenPaywall={() => setPaywallOpen(true)} />}
 
       {screen === "intro" && <SupercellIntro onDone={() => router.push(SHOP_PAGE)} />}
+
+      {/* The pay wall picture is see-through, so over the goblin pop-ups the screen
+          darkens behind it (the same dimming as "Are you sure?" on Timeline) */}
+      <div
+        className={`consent-layer${paywallOpen && screen === "stardrop" ? " is-open" : ""}`}
+        aria-hidden="true"
+      />
 
       <Paywall isOpen={paywallOpen} onClose={handleClosePaywall} />
     </div>

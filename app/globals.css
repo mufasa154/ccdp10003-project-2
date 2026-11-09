@@ -551,6 +551,107 @@ body {
   overflow: visible;
 }
 
+.step-chest {
+  position: relative;
+  width: 11.4cqw;
+  height: 9.8cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: chest-idle-wobble 3.4s var(--chest-delay, 0s) ease-in-out infinite;
+}
+
+.stage .step-chest-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.step-chest-closed {
+  animation: chest-closed-cycle 3.4s var(--chest-delay, 0s) steps(1, end) infinite;
+}
+
+.step-chest-open {
+  opacity: 0;
+  animation: chest-open-cycle 3.4s var(--chest-delay, 0s) steps(1, end) infinite;
+}
+
+/* On hover / focus or when clicked, pop open the chest immediately with a burst */
+.step-card:hover .step-chest,
+.step-card:focus-visible .step-chest,
+.step-chest.is-opening {
+  animation: chest-pop-open 0.48s cubic-bezier(0.25, 1.5, 0.5, 1) both;
+}
+
+.step-card:hover .step-chest-closed,
+.step-card:focus-visible .step-chest-closed,
+.step-chest.is-opening .step-chest-closed {
+  animation: none;
+  opacity: 0;
+}
+
+.step-card:hover .step-chest-open,
+.step-card:focus-visible .step-chest-open,
+.step-chest.is-opening .step-chest-open {
+  animation: none;
+  opacity: 1;
+  filter: drop-shadow(0 0 0.7cqw rgba(255, 230, 80, 0.85));
+}
+
+@keyframes chest-idle-wobble {
+  0%, 52%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  58% {
+    transform: translateY(-0.2cqw) rotate(-6deg) scale(1.04, 0.96);
+  }
+  63% {
+    transform: translateY(-0.2cqw) rotate(6deg) scale(0.96, 1.05);
+  }
+  68% {
+    transform: translateY(-0.55cqw) rotate(-2deg) scale(1.12);
+  }
+  84% {
+    transform: translateY(-0.35cqw) rotate(0deg) scale(1.08);
+  }
+}
+
+@keyframes chest-closed-cycle {
+  0%, 66%, 88%, 100% {
+    opacity: 1;
+  }
+  67%, 87% {
+    opacity: 0;
+  }
+}
+
+@keyframes chest-open-cycle {
+  0%, 66%, 88%, 100% {
+    opacity: 0;
+  }
+  67%, 87% {
+    opacity: 1;
+  }
+}
+
+@keyframes chest-pop-open {
+  0% {
+    transform: scale(0.9) rotate(-8deg);
+  }
+  35% {
+    transform: scale(1.18, 0.88) rotate(6deg);
+  }
+  70% {
+    transform: translateY(-0.45cqw) scale(1.14) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(-0.25cqw) scale(1.1) rotate(0deg);
+  }
+}
+
 .step-qty-pill {
   margin-top: 0.4cqw;
   background: linear-gradient(180deg, #68e82c 0%, #37b611 100%);
@@ -613,9 +714,11 @@ body {
   transform: rotate(-14deg);
 }
 
+.stage .step-gem-icon,
 .step-gem-icon {
   width: 1.85cqw;
   height: 1.85cqw;
+  object-fit: contain;
   flex-shrink: 0;
   filter: drop-shadow(0 0.15cqw 0 #000);
 }
@@ -2674,4 +2777,76 @@ body {
   font-size: 2.2cqw;
   color: #ff4d62;
   animation: sd-loot-pop 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) both;
+}
+
+/* ---------- Claim Gems Back Pop-ups (StarDrop) ---------- */
+
+.sd-popup-overlay {
+  z-index: 18;
+  cursor: default;
+}
+
+.sd-popup-panel {
+  position: relative;
+  max-width: 44cqw;
+  padding: 2.6cqw 3.2cqw 2.2cqw;
+  animation: sd-popup-in 0.28s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.sd-popup-panel--warn {
+  background: linear-gradient(180deg, #6331f4 0%, #2f1899 100%);
+}
+
+.sd-popup-panel--danger {
+  background: linear-gradient(180deg, #b8152b 0%, #630916 100%);
+}
+
+@keyframes sd-popup-in {
+  0% {
+    opacity: 0;
+    transform: skewX(-3deg) scale(0.75);
+  }
+  100% {
+    opacity: 1;
+    transform: skewX(-3deg) scale(1);
+  }
+}
+
+.sd-popup-badge {
+  position: absolute;
+  top: -1.2cqw;
+  padding: 0.3cqw 1.3cqw;
+  font-size: 0.95cqw;
+  background: linear-gradient(180deg, #ff9d0a 0%, #e06d00 100%);
+  border: 0.18cqw solid #000;
+  border-radius: 0.4cqw;
+  box-shadow: 0 0.25cqw 0 #000;
+}
+
+.sd-popup-badge--warn {
+  background: linear-gradient(180deg, #ffeb1c 0%, #ff9d00 100%);
+  color: #fff;
+}
+
+.sd-popup-badge--danger {
+  background: linear-gradient(180deg, #ff3b47 0%, #c4111d 100%);
+}
+
+.sd-popup-title {
+  font-size: 2.9cqw;
+  text-align: center;
+}
+
+.sd-popup-sub {
+  font-size: 1.12cqw;
+  max-width: 36cqw;
+  line-height: 1.45;
+}
+
+.sd-popup-highlight {
+  color: #68e82c;
+}
+
+.sd-btn--red {
+  background: linear-gradient(180deg, #ff4d62 0%, #d41428 100%);
 }

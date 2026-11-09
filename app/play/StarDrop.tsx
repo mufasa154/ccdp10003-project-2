@@ -12,6 +12,7 @@ const RARITIES = [
 ];
 
 type Phase = "closed" | "burst" | "reward" | "goblin" | "stolen";
+type PopupStep = 0 | 1 | 2 | 3;
 
 // Rounded 7-point star, centred on (60, 60)
 const STAR_PATH = (() => {
@@ -44,23 +45,6 @@ function StarDropArt() {
   );
 }
 
-function CoinPile() {
-  const coins = [
-    [30, 92], [52, 96], [74, 94], [96, 92], [40, 80], [63, 82], [86, 80], [50, 67], [74, 66], [62, 54],
-  ];
-  return (
-    <svg className="sd-loot-svg" viewBox="0 0 130 120" aria-hidden="true">
-      {coins.map(([x, y], i) => (
-        <g key={i}>
-          <ellipse cx={x} cy={y + 4} rx="17" ry="9" fill="#c25e00" stroke="#000" strokeWidth="3" />
-          <ellipse cx={x} cy={y} rx="17" ry="9" fill="#ffb21e" stroke="#000" strokeWidth="3" />
-          <ellipse cx={x} cy={y} rx="9" ry="4.5" fill="none" stroke="#d17000" strokeWidth="2" />
-        </g>
-      ))}
-    </svg>
-  );
-}
-
 function GemPile() {
   const gems = [
     [34, 88, -12], [62, 92, 6], [90, 86, 14], [48, 66, -4], [78, 64, 10], [63, 44, 0],
@@ -69,8 +53,7 @@ function GemPile() {
     <svg className="sd-loot-svg" viewBox="0 0 130 120" aria-hidden="true">
       {gems.map(([x, y, r], i) => (
         <g key={i} transform={`translate(${x} ${y}) rotate(${r})`}>
-          <path d="M0-18 16-5 10 15H-10L-16-5Z" fill="#22c55e" stroke="#000" strokeWidth="3" strokeLinejoin="round" />
-          <path d="M0-10 8-3 5 8H-5L-8-3Z" fill="#bef264" />
+          <image href="/gem.png" x="-18" y="-18" width="36" height="36" />
         </g>
       ))}
     </svg>
@@ -82,17 +65,18 @@ function rand(min: number, max: number) {
 }
 
 /** A single star drop. Whatever it gives you, a goblin takes it. */
-export default function StarDrop({ onDone }: { onDone: () => void }) {
+export default function StarDrop({ onOpenPaywall }: { onOpenPaywall: () => void }) {
   const tapsNeeded = useMemo(() => rand(3, 4), []);
-  const lootKind = useMemo<"COINS" | "GEMS">(() => (Math.random() < 0.6 ? "COINS" : "GEMS"), []);
+  const lootKind = "GEMS" as const;
   const [taps, setTaps] = useState(0);
   const [rarity, setRarity] = useState(0);
   const [hit, setHit] = useState(0); // bumps to restart the tap animation
   const [upgraded, setUpgraded] = useState(false);
   const [phase, setPhase] = useState<Phase>("closed");
+  const [popupStep, setPopupStep] = useState<PopupStep>(0);
 
   const r = RARITIES[rarity];
-  const amount = lootKind === "COINS" ? r.coins : r.gems;
+  const amount = r.gems;
 
   // Timed phases after the drop opens
   useEffect(() => {
@@ -107,6 +91,13 @@ export default function StarDrop({ onDone }: { onDone: () => void }) {
     return () => clearTimeout(id);
   }, [phase]);
 
+  // Automatically pop up the "Claim your gems back?" dialog shortly after the goblin steals them
+  useEffect(() => {
+    if (phase !== "stolen" || popupStep !== 0) return;
+    const id = setTimeout(() => setPopupStep(1), 1100);
+    return () => clearTimeout(id);
+  }, [phase, popupStep]);
+
   function tap() {
     if (phase === "closed") {
       if (taps >= tapsNeeded) return; // already opening
@@ -118,8 +109,8 @@ export default function StarDrop({ onDone }: { onDone: () => void }) {
       setUpgraded(up);
       if (up) setRarity((v) => v + 1);
       if (t >= tapsNeeded) setTimeout(() => setPhase("burst"), 450);
-    } else if (phase === "stolen") {
-      onDone();
+    } else if (phase === "stolen" && popupStep === 0) {
+      setPopupStep(1);
     }
   }
 
@@ -164,22 +155,112 @@ export default function StarDrop({ onDone }: { onDone: () => void }) {
         <div className="sd-reward">
           <div className="bs-text sd-loot-title">{lootKind}</div>
           <div className={`sd-loot ${phase !== "reward" ? "sd-loot--stolen" : ""}`}>
-            {lootKind === "COINS" ? <CoinPile /> : <GemPile />}
+            <GemPile />
           </div>
           <div className="bs-text sd-amount">x {phase === "stolen" ? 0 : amount}</div>
 
           {phase !== "reward" && (
             <div className="sd-goblin">
               <img src="/play/goblin.png" alt="Goblin" draggable={false} />
-              <div className="sd-goblin-loot">{lootKind === "COINS" ? <CoinPile /> : <GemPile />}</div>
+              <div className="sd-goblin-loot"><GemPile /></div>
             </div>
           )}
 
           {phase === "stolen" && (
             <>
               <div className="bs-text sd-stolen">A GOBLIN STOLE YOUR {lootKind}!</div>
-              <div className="bs-text sd-hint">TAP TO CONTINUE</div>
+              {popupStep === 0 && <div className="bs-text sd-hint">TAP TO CONTINUE</div>}
             </>
+          )}
+        </div>
+      )}
+
+      {popupStep > 0 && (
+        <div
+          className="play-overlay sd-popup-overlay"
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+        >
+          {popupStep === 1 && (
+            <div className="play-panel sd-popup-panel" key="popup-1">
+              <div className="bs-text sd-popup-badge">GOBLIN THEFT ALERT</div>
+              <div className="bs-text play-title sd-popup-title">CLAIM GEMS BACK?</div>
+              <div className="bs-text play-sub sd-popup-sub">
+                THE GOBLIN JUST RAN OFF WITH YOUR <span className="sd-popup-highlight">{amount} GEMS</span>! DO YOU WANT TO CLAIM YOUR GEMS BACK?
+              </div>
+              <div className="play-buttons">
+                <button
+                  type="button"
+                  className="bs-text play-btn play-btn--green"
+                  onClick={onOpenPaywall}
+                >
+                  YES
+                </button>
+                <button
+                  type="button"
+                  className="bs-text play-btn sd-btn--red"
+                  onClick={() => setPopupStep(2)}
+                >
+                  NO
+                </button>
+              </div>
+            </div>
+          )}
+
+          {popupStep === 2 && (
+            <div className="play-panel sd-popup-panel sd-popup-panel--warn" key="popup-2">
+              <div className="bs-text sd-popup-badge sd-popup-badge--warn">WAIT A SECOND!</div>
+              <div className="bs-text play-title sd-popup-title">ARE YOU SURE?!</div>
+              <div className="bs-text play-sub sd-popup-sub">
+                YOU&apos;RE REALLY GOING TO LET A SNEAKY GOBLIN KEEP YOUR <span className="sd-popup-highlight">{amount} GEMS</span> FOR FREE?! RE-AFFIRM YOUR CHOICE!
+              </div>
+              <div className="play-buttons">
+                <button
+                  type="button"
+                  className="bs-text play-btn play-btn--yellow"
+                  onClick={onOpenPaywall}
+                >
+                  YES, CLAIM THEM!
+                </button>
+                <button
+                  type="button"
+                  className="bs-text play-btn sd-btn--red"
+                  onClick={() => setPopupStep(3)}
+                >
+                  NO, I&apos;M SURE
+                </button>
+              </div>
+            </div>
+          )}
+
+          {popupStep === 3 && (
+            <div className="play-panel sd-popup-panel sd-popup-panel--danger" key="popup-3">
+              <div className="bs-text sd-popup-badge sd-popup-badge--danger">FINAL WARNING!</div>
+              <div className="bs-text play-title play-title--red sd-popup-title">100% POSITIVE?!</div>
+              <div className="bs-text play-sub sd-popup-sub">
+                LAST CHANCE! IF YOU GIVE UP YOUR <span className="sd-popup-highlight">{amount} GEMS</span>, THE GOBLIN KEEPS THEM FOREVER. DO YOU STILL STAND BY YOUR DECISION?!
+              </div>
+              <div className="bs-text play-fineprint">
+                *DECLINING GEM RECOVERY INCURS A MANDATORY GOBLIN CANCELLATION FEE
+              </div>
+              <div className="play-buttons">
+                <button
+                  type="button"
+                  className="bs-text play-btn play-btn--green"
+                  onClick={onOpenPaywall}
+                >
+                  CLAIM MY GEMS!
+                </button>
+                <button
+                  type="button"
+                  className="bs-text play-btn sd-btn--red"
+                  onClick={onOpenPaywall}
+                >
+                  STILL NO!
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}
