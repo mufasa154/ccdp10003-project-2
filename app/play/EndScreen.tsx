@@ -99,8 +99,8 @@ export default function EndScreen({
       <div className="res-rays" />
       <div className="res-hero">
         <picture className="res-hero-pic">
-          <source srcSet="/david shea.png" type="image/png" />
-          <img src="/david shea.jpg" alt="David Shea" draggable={false} />
+          <source srcSet="/david_new.png" type="image/png" />
+          <img src="/david_new.jpg" alt="David Shea" draggable={false} />
         </picture>
         <div className="bs-text res-hero-name">DAVID SHEA</div>
       </div>
