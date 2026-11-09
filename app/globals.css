@@ -2379,6 +2379,10 @@ body {
   animation: res-hero-pop 0.9s 0.25s cubic-bezier(0.2, 1.5, 0.4, 1) both;
 }
 
+.res-hero-pic {
+  display: contents;
+}
+
 .stage .res-hero img {
   width: 100%;
   height: auto;

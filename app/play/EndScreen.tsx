@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import type { GameStats } from "./game";
 
 function formatTime(t: number) {
@@ -51,6 +52,15 @@ export default function EndScreen({
   onPlayAgain: () => void;
   onExit: () => void;
 }) {
+  useEffect(() => {
+    const audio = new Audio("/brawl-stars-defeat-sound.mp3");
+    audio.volume = 0.7;
+    void audio.play().catch(() => {});
+    return () => {
+      audio.pause();
+    };
+  }, []);
+
   return (
     <div className="res">
       <div className="res-fade" />
@@ -88,7 +98,10 @@ export default function EndScreen({
       {/* Centre: David Shea pops up out of the floor */}
       <div className="res-rays" />
       <div className="res-hero">
-        <img src="/play/player-full.png" alt="David Shea" draggable={false} />
+        <picture className="res-hero-pic">
+          <source srcSet="/david shea.png" type="image/png" />
+          <img src="/david shea.jpg" alt="David Shea" draggable={false} />
+        </picture>
         <div className="bs-text res-hero-name">DAVID SHEA</div>
       </div>
 

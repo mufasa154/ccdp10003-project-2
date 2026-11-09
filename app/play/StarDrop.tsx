@@ -78,6 +78,16 @@ export default function StarDrop({ onOpenPaywall }: { onOpenPaywall: () => void 
   const r = RARITIES[rarity];
   const amount = r.gems;
 
+  // Sound effect when the Star Drop first appears
+  useEffect(() => {
+    const audio = new Audio("/rare-brawl-stars-star-drop.mp3");
+    audio.volume = 0.7;
+    void audio.play().catch(() => {});
+    return () => {
+      audio.pause();
+    };
+  }, []);
+
   // Timed phases after the drop opens
   useEffect(() => {
     const next: Partial<Record<Phase, [Phase, number]>> = {
