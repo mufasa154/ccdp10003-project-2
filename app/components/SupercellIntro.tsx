@@ -2,24 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Track within the client session so navigating back to "/" from "/assignments"
-// doesn't replay the intro, while a full page load/refresh always plays it.
-let introPlayedThisLoad = false;
-
-export default function SupercellIntro() {
-  const [phase, setPhase] = useState<"supercell" | "brawlstars" | "done">(
-    introPlayedThisLoad ? "done" : "supercell"
-  );
+/**
+ * The Supercell logo video, then the Brawl Stars loading screen. Calls onDone
+ * when both have finished, and stays a black screen until it's removed, so
+ * nothing flashes before the next page appears. Deadline Dash decides when to
+ * show it (the first time you leave the game for the shop).
+ */
+export default function SupercellIntro({ onDone }: { onDone: () => void }) {
+  const [phase, setPhase] = useState<"supercell" | "brawlstars">("supercell");
 
   const supercellVideoRef = useRef<HTMLVideoElement>(null);
   const loadingVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (introPlayedThisLoad) {
-      setPhase("done");
-      return;
-    }
-
     const video = supercellVideoRef.current;
     if (!video) return;
 
@@ -58,8 +53,7 @@ export default function SupercellIntro() {
     setPhase("brawlstars");
     const loadingVideo = loadingVideoRef.current;
     if (!loadingVideo) {
-      introPlayedThisLoad = true;
-      setPhase("done");
+      onDone();
       return;
     }
 
@@ -78,11 +72,8 @@ export default function SupercellIntro() {
   }
 
   function handleLoadingEnded() {
-    introPlayedThisLoad = true;
-    setPhase("done");
+    onDone();
   }
-
-  if (phase === "done") return null;
 
   return (
     <div className="supercell-intro" role="presentation">

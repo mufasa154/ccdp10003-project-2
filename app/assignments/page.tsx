@@ -1,15 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useRef, useState, type MouseEvent } from "react";
+import HScrollbar from "../components/HScrollbar";
 import Paywall from "../components/Paywall";
-
-type HotspotStyle = CSSProperties & {
-  "--x": number;
-  "--y": number;
-  "--w": number;
-  "--h": number;
-};
+import ShopNav from "../components/ShopNav";
 
 interface AssignmentStep {
   step: number;
@@ -220,6 +215,7 @@ export default function AssignmentsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const openerRef = useRef<HTMLButtonElement | null>(null);
+  const stepsRef = useRef<HTMLDivElement>(null);
 
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
@@ -233,7 +229,7 @@ export default function AssignmentsPage() {
 
   return (
     <div className="stage">
-      <img src="/shop.png" alt="Brawl Stars style shop screen" />
+      <img src="/project2-b.png" alt="Brawl Stars style shop screen, Assignments tab" />
 
       <div className="assignments-overlay" inert={isOpen}>
         <button
@@ -246,7 +242,7 @@ export default function AssignmentsPage() {
           <span className="bs-text reward-chances-icon">?</span>
         </button>
 
-        <div className="steps-track">
+        <div className="steps-track" ref={stepsRef}>
           {ASSIGNMENT_STEPS.map((item, index) => (
             <div className="step-item" key={item.step}>
               <button
@@ -306,44 +302,11 @@ export default function AssignmentsPage() {
             </div>
           ))}
         </div>
+
+        <HScrollbar target={stepsRef} />
       </div>
 
-      <div className="shop-buttons" id="shop-buttons" inert={isOpen}>
-        <button
-          className="hotspot"
-          id="btn-back"
-          aria-label="Back"
-          style={{ "--x": 0, "--y": 0, "--w": 188, "--h": 133 } as HotspotStyle}
-          onClick={() => router.push("/")}
-        />
-        <button
-          className="hotspot"
-          id="btn-home"
-          aria-label="Home"
-          style={{ "--x": 1732, "--y": 0, "--w": 188, "--h": 124 } as HotspotStyle}
-          onClick={() => router.push("/play")}
-        />
-        <button
-          className="hotspot"
-          id="btn-offers"
-          aria-label="Offers"
-          style={{ "--x": 176, "--y": 1000, "--w": 202, "--h": 70 } as HotspotStyle}
-          onClick={() => router.push("/offers")}
-        />
-        <button
-          className="hotspot"
-          id="btn-assignments"
-          aria-label="Assignments"
-          style={{ "--x": 734, "--y": 1000, "--w": 378, "--h": 70 } as HotspotStyle}
-        />
-        <button
-          className="hotspot"
-          id="btn-timetable"
-          aria-label="Timetable"
-          style={{ "--x": 1485, "--y": 1000, "--w": 296, "--h": 70 } as HotspotStyle}
-          onClick={openPaywall}
-        />
-      </div>
+      <ShopNav current="assignments" inert={isOpen} />
 
       <Paywall isOpen={isOpen} onClose={handleClosePaywall} />
     </div>

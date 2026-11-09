@@ -5,24 +5,13 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent,
   type ReactNode,
 } from "react";
+import HScrollbar from "../components/HScrollbar";
 import Paywall from "../components/Paywall";
-import {
-  ExamSurvivorArt,
-  GroupCarryArt,
-  MysteryBoxArt,
-  SleepDeprivedArt,
-} from "./SkinArt";
-
-type HotspotStyle = CSSProperties & {
-  "--x": number;
-  "--y": number;
-  "--w": number;
-  "--h": number;
-};
+import ShopNav from "../components/ShopNav";
+import { MysteryBoxArt } from "./SkinArt";
 
 type Rarity = "rare" | "super-rare" | "epic" | "mythic" | "legendary" | "mystery";
 
@@ -59,7 +48,8 @@ const SKINS: SkinOffer[] = [
     id: "sleep",
     name: "SLEEP-DEPRIVED STUDENT",
     rarity: "legendary",
-    art: <SleepDeprivedArt />,
+    art: null,
+    image: "/skins/sleep.webp",
     price: 2999,
     oldPrice: 3499,
     banner: "MOST POPULAR",
@@ -68,7 +58,8 @@ const SKINS: SkinOffer[] = [
     id: "carry",
     name: "GROUP PROJECT CARRY",
     rarity: "epic",
-    art: <GroupCarryArt />,
+    art: null,
+    image: "/skins/angry.webp",
     price: 299,
     priceSuffix: "x4",
     ribbon: "SQUAD DEAL",
@@ -99,7 +90,9 @@ const SKINS: SkinOffer[] = [
     id: "exam",
     name: "EXAM WEEK SURVIVOR",
     rarity: "super-rare",
-    art: <ExamSurvivorArt />,
+    art: null,
+    image: "/skins/examweek.jpg",
+    photo: true,
     price: 499,
     special: "stock",
   },
@@ -201,20 +194,6 @@ export default function OffersPage() {
     };
   }, []);
 
-  // Let a normal mouse wheel scroll the row of skins sideways
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        track.scrollLeft += e.deltaY;
-        e.preventDefault();
-      }
-    };
-    track.addEventListener("wheel", onWheel, { passive: false });
-    return () => track.removeEventListener("wheel", onWheel);
-  }, []);
-
   function openPaywall(event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
     setIsOpen(true);
@@ -227,7 +206,7 @@ export default function OffersPage() {
 
   return (
     <div className="stage">
-      <img src="/shop.png" alt="Brawl Stars style shop screen" />
+      <img src="/project2-c.png" alt="Brawl Stars style shop screen, Offers tab" />
 
       <div className="offers-overlay" inert={isOpen}>
         <div className="bs-text offers-title">SKIN OFFERS</div>
@@ -240,7 +219,8 @@ export default function OffersPage() {
                 <button
                   type="button"
                   className={`offer-card offer-card--${skin.rarity}`}
-                  onClick={openPaywall}
+                  // "Buying" a skin sends you to the gem shop (with OFFERS still lit)
+                  onClick={() => router.push("/offers/gems")}
                   aria-label={`${skin.name}, ${RARITY_LABEL[skin.rarity]} skin, ${price.toLocaleString("en-US")} gems`}
                 >
                   <div className="offer-card-header">
@@ -319,6 +299,8 @@ export default function OffersPage() {
             );
           })}
         </div>
+
+        <HScrollbar target={trackRef} />
       </div>
 
       {toastIndex !== null && (
@@ -327,42 +309,7 @@ export default function OffersPage() {
         </div>
       )}
 
-      <div className="shop-buttons" id="shop-buttons" inert={isOpen}>
-        <button
-          className="hotspot"
-          id="btn-back"
-          aria-label="Back"
-          style={{ "--x": 0, "--y": 0, "--w": 188, "--h": 133 } as HotspotStyle}
-          onClick={() => router.push("/")}
-        />
-        <button
-          className="hotspot"
-          id="btn-home"
-          aria-label="Home"
-          style={{ "--x": 1732, "--y": 0, "--w": 188, "--h": 124 } as HotspotStyle}
-          onClick={() => router.push("/play")}
-        />
-        <button
-          className="hotspot"
-          id="btn-offers"
-          aria-label="Offers"
-          style={{ "--x": 176, "--y": 1000, "--w": 202, "--h": 70 } as HotspotStyle}
-        />
-        <button
-          className="hotspot"
-          id="btn-assignments"
-          aria-label="Assignments"
-          style={{ "--x": 734, "--y": 1000, "--w": 378, "--h": 70 } as HotspotStyle}
-          onClick={() => router.push("/assignments")}
-        />
-        <button
-          className="hotspot"
-          id="btn-timetable"
-          aria-label="Timetable"
-          style={{ "--x": 1485, "--y": 1000, "--w": 296, "--h": 70 } as HotspotStyle}
-          onClick={openPaywall}
-        />
-      </div>
+      <ShopNav current="offers" inert={isOpen} />
 
       <Paywall isOpen={isOpen} onClose={handleClosePaywall} />
     </div>
